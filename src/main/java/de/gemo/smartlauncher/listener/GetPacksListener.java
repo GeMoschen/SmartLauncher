@@ -8,7 +8,7 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
-import de.gemo.smartlauncher.actions.GetPackIcon;
+import de.gemo.smartlauncher.actions.GetPackIconAction;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
@@ -22,6 +22,7 @@ import de.gemo.smartlauncher.units.PackVersion;
 public class GetPacksListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
+        Logger.fine("getting packs...");
     }
 
     public void onFinish(HTTPAction action) {
@@ -59,7 +60,7 @@ public class GetPacksListener extends HTTPListener {
                             }
                         }
                     }
-                    Main.appendWorker(new Worker(new GetPackIcon(pack), new GetPackIconListener()));
+                    Main.appendWorker(new Worker(new GetPackIconAction(pack), new GetPackIconListener(pack)));
                     Pack.loadedPacks.put(packName, pack);
                     Logger.fine("loaded pack '" + pack.getPackName() + "' with " + pack.getVersions().size() + " versions...");
                 } catch (Exception e) {
@@ -67,6 +68,8 @@ public class GetPacksListener extends HTTPListener {
                     e.printStackTrace();
                 }
             }
+            Logger.fine("Packs fetched...");
+
             // get icons...
             Main.startThread();
 
@@ -79,6 +82,7 @@ public class GetPacksListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Logger.error("Could not fetch packs!");
         JOptionPane.showMessageDialog(null, "Could not fetch available packs...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
         MainFrame.CORE.exit(0);
     }

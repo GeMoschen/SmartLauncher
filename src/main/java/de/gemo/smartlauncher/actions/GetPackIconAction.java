@@ -18,7 +18,7 @@ import de.gemo.smartlauncher.internet.Worker;
 import de.gemo.smartlauncher.units.Pack;
 import de.gemo.smartlauncher.units.VARS;
 
-public class GetPackIcon implements HTTPAction {
+public class GetPackIconAction implements HTTPAction {
 
     private final String URL = "http://www.djgemo.de/";
     private String shortDescription;
@@ -29,7 +29,7 @@ public class GetPackIcon implements HTTPAction {
 
     private Pack pack;
 
-    public GetPackIcon(Pack pack) {
+    public GetPackIconAction(Pack pack) {
         this.shortDescription = "getting icon for '" + pack.getPackName() + "'...";
         this.pack = pack;
     }

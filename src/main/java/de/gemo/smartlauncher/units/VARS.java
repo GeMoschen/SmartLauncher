@@ -2,11 +2,20 @@ package de.gemo.smartlauncher.units;
 
 public class VARS {
 
+    public static String getString(String string, GameInfo gameInfo) {
+        String replaced = string;
+        replaced = string.replace("${version}", gameInfo.getGameVersion());
+        return replaced;
+    }
+
+    public static String getString(String string, String replace, String replacement) {
+        String replaced = string;
+        replaced = string.replace("${" + replace + "}", replacement);
+        return replaced;
+    }
+
     public final static class DIR {
         public final static String APPDATA = System.getenv("AppData") + "\\.SmartLauncher\\";
-        // public final static String APPDATA = new File("").getAbsolutePath() +
-        // "\\";
-
         public final static String ASSETS = APPDATA + "assets";
         public final static String LIBRARIES = APPDATA + "libraries";
         public final static String PROFILES = APPDATA + "profiles";
@@ -15,18 +24,6 @@ public class VARS {
 
     public final static class URL {
 
-        public static String getString(String string, GameInfo gameInfo) {
-            String replaced = string;
-            replaced = string.replace("${version}", gameInfo.getGameVersion());
-            return replaced;
-        }
-
-        public static String getString(String string, String replace, String replacement) {
-            String replaced = string;
-            replaced = string.replace("${" + replace + "}", replacement);
-            return replaced;
-        }
-
         public final static class MinecraftLogin {
             private static final String LOGINSERVER = "https://authserver.mojang.com/";
             public static final String REFRESH_LOGIN = LOGINSERVER + "refresh";
@@ -34,6 +31,7 @@ public class VARS {
         }
 
         public final static class JSON {
+            public final static String PACKS = "http://www.djgemo.de/packs.json";
             public final static String MC_ASSETS = "https://s3.amazonaws.com/Minecraft.Download/indexes/${version}.json";
             public final static String MC_VERSIONS = "http://s3.amazonaws.com/Minecraft.Download/versions/${version}/${version}.json";
         }

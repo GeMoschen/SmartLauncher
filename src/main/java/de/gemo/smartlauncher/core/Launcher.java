@@ -66,7 +66,7 @@ public class Launcher {
     private void launch() {
         StatusFrame.INSTANCE.setText("Preparing download...");
         StatusFrame.INSTANCE.showGUI(true);
-        Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), new MCJsonDownloadListener(this.version, this.version + ".json")));
+        Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), new MCJsonDownloadListener(this.version, this.version + ".json")));
         Main.startThread();
     }
 

@@ -7,7 +7,8 @@ import java.net.HttpURLConnection;
 
 import javax.imageio.ImageIO;
 
-import de.gemo.smartlauncher.actions.GetPackIcon;
+import de.gemo.smartlauncher.actions.GetPackIconAction;
+import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.frames.LoginFrame;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
@@ -19,12 +20,18 @@ import de.gemo.smartlauncher.units.Pack;
 public class GetPackIconListener extends HTTPListener {
 
     private static int count = 0;
+    private final Pack pack;
+
+    public GetPackIconListener(Pack pack) {
+        this.pack = pack;
+    }
 
     public void onStart(HTTPAction action) {
+        Logger.fine("Getting icon for '" + this.pack.getPackName() + "'...");
     }
 
     public void onFinish(HTTPAction action) {
-        GetPackIcon thisAction = (GetPackIcon) action;
+        GetPackIconAction thisAction = (GetPackIconAction) action;
         if (action.getResponseCode() == HttpURLConnection.HTTP_OK) {
             ByteResponse response = (ByteResponse) this.getWorker().getResponse();
             try {
@@ -33,6 +40,9 @@ public class GetPackIconListener extends HTTPListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Logger.fine("Icon received...");
+        } else {
+            Logger.warning("No icon found. Using standardicon...");
         }
         count++;
 
@@ -51,6 +61,7 @@ public class GetPackIconListener extends HTTPListener {
     @Override
     public void onError(HTTPAction action) {
         // do nothing...
+        Logger.warning("Error fetching icon...");
         count++;
     }
 

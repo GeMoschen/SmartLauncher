@@ -6,30 +6,33 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.GETResponse;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPResponse;
 import de.gemo.smartlauncher.internet.Worker;
+import de.gemo.smartlauncher.units.VARS;
 
 public class GetPacksAction implements HTTPAction {
 
-    private final String URL = "http://www.djgemo.de/packs.json";
     private String shortDescription;
 
     private long contentLength = 0;
     private long loadedLength = 0;
     private int responseCode;
+    private String packsURL;
 
     public GetPacksAction() {
         this.shortDescription = "getting packs...";
+        this.packsURL = VARS.getString(VARS.URL.JSON.PACKS, "userName", Main.authData.getMCUserName());
     }
 
     public HTTPResponse doAction() throws IOException {
         StatusFrame.INSTANCE.setText(this.getShortDescription());
-
         // create URL
-        URL url = new URL(URL);
+
+        URL url = new URL(this.packsURL);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
         // optional, default is GET
@@ -63,7 +66,7 @@ public class GetPacksAction implements HTTPAction {
         this.loadedLength = this.contentLength;
 
         // return
-        return new GETResponse(URL, responseCode, this.getContentLength(), con.getContentType(), response);
+        return new GETResponse(this.packsURL, responseCode, this.getContentLength(), con.getContentType(), response);
     }
 
     public long getLoadedLength() {
@@ -75,7 +78,7 @@ public class GetPacksAction implements HTTPAction {
     }
 
     public String getCompleteURL() {
-        return this.URL;
+        return this.packsURL;
     }
 
     @Override

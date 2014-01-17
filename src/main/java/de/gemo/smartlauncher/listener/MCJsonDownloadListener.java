@@ -89,7 +89,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 }
 
                 // append assets.json
-                Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
 
                 // append libraries...
                 if (librariesToDL.size() > 0) {
@@ -101,7 +101,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 }
 
                 // append minecraft.jar
-                Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.FILES.MC_JAR, Launcher.INSTANCE.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, Launcher.INSTANCE.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
 
                 // start thread...
                 Main.startThread();
