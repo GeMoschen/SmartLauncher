@@ -14,6 +14,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.core.Launcher;
+import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
@@ -21,6 +22,7 @@ import de.gemo.smartlauncher.internet.DownloadAction;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
 import de.gemo.smartlauncher.internet.Worker;
+import de.gemo.smartlauncher.units.Asset;
 import de.gemo.smartlauncher.units.Library;
 import de.gemo.smartlauncher.units.VARS;
 
@@ -53,12 +55,12 @@ public class MCJsonDownloadListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
+            Logger.fine("Versionfile downloaded: " + this.version + ".json");
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.VERSIONS + "/" + version + "/" + this.fileName)));
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
-                ArrayList<Library> librariesToDL = new ArrayList<Library>();
                 Launcher.INSTANCE.setMainClass(json.get("mainClass").asString());
                 Launcher.INSTANCE.setMCArguments(json.get("minecraftArguments").asString());
 
@@ -71,6 +73,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 Launcher.INSTANCE.getGameInfo().setAssetVersion(assetsFile);
 
                 // get libraries...
+                ArrayList<Library> librariesToDL = new ArrayList<Library>();
                 JsonArray jsonLib = json.get("libraries").asArray();
                 JsonObject singleLibrary;
                 for (JsonValue value : jsonLib.values()) {
@@ -86,12 +89,23 @@ public class MCJsonDownloadListener extends HTTPListener {
                 }
 
                 // append assets.json
-                Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCAssetsJsonListener()));
+                Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
 
                 // append libraries...
-                for (Library library : librariesToDL) {
-                    Main.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.LIBRARIES + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
+                if (librariesToDL.size() > 0) {
+                    for (Library library : librariesToDL) {
+                        Main.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.LIBRARIES + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
+                    }
+                } else {
+                    Logger.fine("No need to download libraries...");
                 }
+
+                // append minecraft.jar
+                Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.FILES.MC_JAR, Launcher.INSTANCE.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
+
+                // start thread...
+                Main.startThread();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 this.onError(action);
@@ -177,6 +191,7 @@ public class MCJsonDownloadListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
         JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);

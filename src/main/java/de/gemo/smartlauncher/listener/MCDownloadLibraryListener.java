@@ -4,13 +4,13 @@ import java.net.HttpURLConnection;
 
 import javax.swing.JOptionPane;
 
-import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
+import de.gemo.smartlauncher.units.Asset;
 import de.gemo.smartlauncher.units.Library;
 
 public class MCDownloadLibraryListener extends HTTPListener {
@@ -36,11 +36,9 @@ public class MCDownloadLibraryListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
+            Logger.fine("Library downloaded: " + this.library.getFileName());
             if (Library.incrementCount()) {
-                Logger.info("Libraries successfully downloaded...");
-                Launcher.startGame();
-                StatusFrame.INSTANCE.showGUI(false);
-                MainFrame.CORE.showFrame(true);
+                Logger.fine("Libraries successfully downloaded...");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,9 +48,10 @@ public class MCDownloadLibraryListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft... '" + action.getCompleteURL() + "' ", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
         StatusFrame.INSTANCE.showGUI(false);
         MainFrame.CORE.showFrame(true);
     }

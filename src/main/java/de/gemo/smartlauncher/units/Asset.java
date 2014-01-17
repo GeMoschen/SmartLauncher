@@ -17,6 +17,10 @@ public class Asset {
         return assetsToLoad;
     }
 
+    public static synchronized void reset() {
+        assetsToLoad = 0;
+    }
+
     private final String path, hash, hashFolder;
     private final int fileSize;
 

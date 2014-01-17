@@ -5,11 +5,14 @@ import java.text.DecimalFormat;
 
 import javax.swing.JOptionPane;
 
+import de.gemo.smartlauncher.core.Launcher;
+import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
+import de.gemo.smartlauncher.units.Asset;
 import de.gemo.smartlauncher.units.Library;
 
 public class MCDownloadFileListener extends HTTPListener {
@@ -37,14 +40,10 @@ public class MCDownloadFileListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
-            // TODO: CHECK ASSETS & LIBRARIES
-            // if (Library.getLibraryDownloadList().size() < 1 &&
-            // Asset.getAssetsToLoad() < 1) {
-            // Logger.info("No libraries/assets to download...");
-            // Launcher.startGame();
-            // StatusFrame.INSTANCE.showGUI(false);
-            // MainFrame.CORE.showFrame(true);
-            // }
+            Logger.fine("Minecraft downloaded: " + this.fileName);
+            Launcher.startGame();
+            StatusFrame.INSTANCE.showGUI(false);
+            MainFrame.CORE.showFrame(true);
         } catch (Exception e) {
             e.printStackTrace();
             this.onError(action);
@@ -53,6 +52,7 @@ public class MCDownloadFileListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
         JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);

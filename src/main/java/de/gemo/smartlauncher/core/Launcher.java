@@ -20,7 +20,6 @@ import com.eclipsesource.json.JsonObject;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.DownloadAction;
 import de.gemo.smartlauncher.internet.Worker;
-import de.gemo.smartlauncher.listener.MCDownloadFileListener;
 import de.gemo.smartlauncher.listener.MCJsonDownloadListener;
 import de.gemo.smartlauncher.units.Asset;
 import de.gemo.smartlauncher.units.AuthData;
@@ -68,7 +67,6 @@ public class Launcher {
         StatusFrame.INSTANCE.setText("Preparing download...");
         StatusFrame.INSTANCE.showGUI(true);
         Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), new MCJsonDownloadListener(this.version, this.version + ".json")));
-        Main.appendWorker(new Worker(new DownloadAction(VARS.URL.getString(VARS.URL.FILES.MC_JAR, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
         Main.startThread();
     }
 
@@ -171,7 +169,6 @@ public class Launcher {
             json = json.get("objects").asObject();
 
             // copy every asset
-            File appDir = new File("");
             for (String objectName : json.names()) {
                 JsonObject singleAsset = json.get(objectName).asObject();
                 Asset asset = new Asset(objectName.replaceAll("\"", ""), singleAsset.get("hash").asString().replaceAll("\"", ""), singleAsset.get("size").asInt());
@@ -201,9 +198,6 @@ public class Launcher {
         cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         cmd.add("-Xmx1G");
 
-        // cmd.add("-jar");
-        // cmd.add(new File("").getAbsolutePath() + "\\versions\\" +
-        // this.version + "\\" + this.version + ".jar");
         cmd.add("-Djava.library.path=" + this.nativesDir.getAbsolutePath());
         cmd.add("-cp");
         File libDir = new File(VARS.DIR.LIBRARIES, "");
@@ -217,6 +211,7 @@ public class Launcher {
             libs += libDir.getAbsolutePath() + "\\" + library.getStartFile() + ";";
         }
         libs += (VARS.DIR.VERSIONS + "\\" + this.version + "\\" + this.version + ".jar");
+        libs = libs.replaceAll("/", "\\\\");
         cmd.add(libs);
         cmd.add(mainClass);
 
@@ -227,8 +222,8 @@ public class Launcher {
                 fullCMD += cm + " ";
             }
 
-            Logger.info("Starting Minecraft...");
-            Logger.info(fullCMD);
+            Logger.fine("Starting Minecraft...");
+            Logger.fine(fullCMD);
             new ProcessBuilder(cmd).directory(this.gameDir).redirectErrorStream(true).start();
         } catch (IOException e) {
             e.printStackTrace();

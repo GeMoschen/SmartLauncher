@@ -61,7 +61,7 @@ public class GetPacksListener extends HTTPListener {
                     }
                     Main.appendWorker(new Worker(new GetPackIcon(pack), new GetPackIconListener()));
                     Pack.loadedPacks.put(packName, pack);
-                    Logger.info("loaded pack '" + pack.getPackName() + "' with " + pack.getVersions().size() + " versions...");
+                    Logger.fine("loaded pack '" + pack.getPackName() + "' with " + pack.getVersions().size() + " versions...");
                 } catch (Exception e) {
                     // ignore pack...
                     e.printStackTrace();

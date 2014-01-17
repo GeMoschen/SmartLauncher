@@ -23,7 +23,7 @@ import de.gemo.smartlauncher.units.Asset;
 import de.gemo.smartlauncher.units.Library;
 import de.gemo.smartlauncher.units.VARS;
 
-public class MCAssetsJsonListener extends HTTPListener {
+public class MCJsonAssetsListener extends HTTPListener {
 
     @Override
     public void onStart(HTTPAction action) {
@@ -41,12 +41,11 @@ public class MCAssetsJsonListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
+            Logger.fine("Assetindex downloaded: " + Launcher.INSTANCE.getGameInfo().getAssetVersion() + ".json");
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.ASSETS + "/indexes/" + Launcher.INSTANCE.getGameInfo().getAssetVersion() + ".json")));
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
-
-                ArrayList<Asset> assetsToDL = new ArrayList<Asset>();
 
                 // get assetsfile...
                 // boolean virtual = false;
@@ -55,6 +54,7 @@ public class MCAssetsJsonListener extends HTTPListener {
                 // virtual = virtualValue.asBoolean();
                 // }
 
+                ArrayList<Asset> assetsToDL = new ArrayList<Asset>();
                 JsonObject objects = json.get("objects").asObject();
                 for (String objectName : objects.names()) {
                     JsonObject singleAsset = objects.get(objectName).asObject();
@@ -70,13 +70,13 @@ public class MCAssetsJsonListener extends HTTPListener {
                 if (Asset.getAssetsToLoad() > 0) {
                     Main.startThread();
                 } else {
-                    Logger.info("All needed assets downloaded...");
-                    if (Library.getLibraryDownloadList().size() < 1) {
-                        Logger.info("All needed libraries downloaded...");
-                        Launcher.startGame();
-                        StatusFrame.INSTANCE.showGUI(false);
-                        MainFrame.CORE.showFrame(true);
-                    }
+                    Logger.fine("No need to download assets...");
+                    // if (Library.getLibraryDownloadList().size() < 1) {
+                    // Logger.info("All needed libraries downloaded...");
+                    // Launcher.startGame();
+                    // StatusFrame.INSTANCE.showGUI(false);
+                    // MainFrame.CORE.showFrame(true);
+                    // }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,6 +90,7 @@ public class MCAssetsJsonListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
         JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);

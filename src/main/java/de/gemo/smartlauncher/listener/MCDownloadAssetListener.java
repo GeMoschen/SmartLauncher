@@ -4,7 +4,6 @@ import java.net.HttpURLConnection;
 
 import javax.swing.JOptionPane;
 
-import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
@@ -37,14 +36,10 @@ public class MCDownloadAssetListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
+            Logger.fine("Asset downloaded: " + this.asset.getPath());
             Asset.decrementAssetsToLoad();
             if (Asset.getAssetsToLoad() < 1) {
-                Logger.info("Assets successfully downloaded...");
-                if (Library.getLibraryDownloadList().size() < 1) {
-                    Launcher.startGame();
-                    StatusFrame.INSTANCE.showGUI(false);
-                    MainFrame.CORE.showFrame(true);
-                }
+                Logger.fine("Assets successfully downloaded...");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,9 +49,10 @@ public class MCDownloadAssetListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
+        Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft... '" + action.getCompleteURL() + "' ", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
         StatusFrame.INSTANCE.showGUI(false);
         MainFrame.CORE.showFrame(true);
     }
