@@ -4,6 +4,8 @@ import java.net.HttpURLConnection;
 
 import javax.swing.JOptionPane;
 
+import de.gemo.smartlauncher.core.DownloadInfo;
+import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
@@ -40,6 +42,12 @@ public class MCDownloadAssetListener extends HTTPListener {
             Asset.decrementAssetsToLoad();
             if (Asset.getAssetsToLoad() < 1) {
                 Logger.fine("Assets successfully downloaded...");
+
+                // launch game, if there is nothing left to download...
+                DownloadInfo downloadInfo = Launcher.getDownloadInfo();
+                if (!downloadInfo.isDownloadMCJar() && downloadInfo.getLibraryCount() < 1) {
+                    Launcher.startGame();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

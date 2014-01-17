@@ -13,6 +13,7 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import de.gemo.smartlauncher.core.DownloadInfo;
 import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
@@ -46,6 +47,108 @@ public class MCJsonDownloadListener extends HTTPListener {
         StatusFrame.INSTANCE.setProgress(0);
     }
 
+    /**
+     * Read the json...
+     * 
+     * @param json
+     * @return <b>true</b>, if there are some files missing.otherwise
+     *         <b>false</b>
+     */
+    public boolean readJson(JsonObject json) {
+        try {
+            // get downloadinfo...
+            DownloadInfo downloadInfo = Launcher.getDownloadInfo();
+            Launcher.getGameInfo().setMainClass(json.get("mainClass").asString());
+            Launcher.getGameInfo().setMCArguments(json.get("minecraftArguments").asString());
+
+            // get assetsfile...
+            String assetsFile = "legacy";
+            JsonValue assetsValue = json.get("assets");
+            if (assetsValue != null) {
+                assetsFile = assetsValue.asString().replaceAll("\"", "");
+            }
+            Launcher.getGameInfo().setAssetVersion(assetsFile);
+
+            // get libraries...
+            ArrayList<Library> librariesToDL = new ArrayList<Library>();
+            JsonArray jsonLib = json.get("libraries").asArray();
+            JsonObject singleLibrary;
+            for (JsonValue value : jsonLib.values()) {
+                singleLibrary = value.asObject();
+                Library lib = this.getLibrary(singleLibrary);
+
+                // add the library, if it should be added...
+                if (lib.addLibrary()) {
+                    if (lib.addLibraryToDownloads()) {
+                        librariesToDL.add(lib);
+                    }
+                }
+            }
+
+            // append assets.json, if needed...
+            File assets = new File(VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json");
+            downloadInfo.setDownloadAssetJSON(!assets.exists() || !this.verifyAssets(assets));
+            if (downloadInfo.isDownloadAssetJSON()) {
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
+            } else {
+                Logger.fine("Assets are fine...");
+            }
+
+            // append libraries,if needed...
+            downloadInfo.setLibraryCount(librariesToDL.size());
+            if (downloadInfo.getLibraryCount() > 0) {
+                for (Library library : librariesToDL) {
+                    Main.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.LIBRARIES + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
+                }
+            } else {
+                Logger.fine("Libraries are fine...");
+            }
+
+            // append minecraft.jar, if needed
+            File mcJar = new File(VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar");
+            downloadInfo.setDownloadMCJar(!mcJar.exists());
+            if (!mcJar.exists()) {
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, Launcher.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
+            } else {
+                Logger.fine("Minecraft-JAR is fine...");
+            }
+
+            // start thread...
+            return (downloadInfo.isDownloadAssetJSON() || downloadInfo.isDownloadMCJar() || downloadInfo.getLibraryCount() > 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // reset all...
+            Asset.reset();
+            Library.clearLibrarys();
+            Main.clearHTTPs();
+            JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+            StatusFrame.INSTANCE.showGUI(false);
+            MainFrame.CORE.showFrame(true);
+            return true;
+        }
+    }
+
+    private boolean verifyAssets(File assets) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(assets));
+            JsonObject json = JsonObject.readFrom(reader);
+            reader.close();
+
+            // iterate over assets and check, if they are valid...
+            JsonObject objects = json.get("objects").asObject();
+            for (String objectName : objects.names()) {
+                JsonObject singleAsset = objects.get(objectName).asObject();
+                Asset asset = new Asset(objectName.replaceAll("\"", ""), singleAsset.get("hash").asString().replaceAll("\"", ""), singleAsset.get("size").asInt());
+                if (!asset.isFileValid()) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public void onFinish(HTTPAction action) {
         if (action.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -57,55 +160,20 @@ public class MCJsonDownloadListener extends HTTPListener {
             StatusFrame.INSTANCE.setText("download finished...");
             Logger.fine("Versionfile downloaded: " + this.version + ".json");
             try {
+
+                // read json...
                 BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.VERSIONS + "/" + version + "/" + this.fileName)));
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
-                Launcher.getGameInfo().setMainClass(json.get("mainClass").asString());
-                Launcher.getGameInfo().setMCArguments(json.get("minecraftArguments").asString());
-
-                // get assetsfile...
-                String assetsFile = "legacy";
-                JsonValue assetsValue = json.get("assets");
-                if (assetsValue != null) {
-                    assetsFile = assetsValue.asString().replaceAll("\"", "");
-                }
-                Launcher.getGameInfo().setAssetVersion(assetsFile);
-
-                // get libraries...
-                ArrayList<Library> librariesToDL = new ArrayList<Library>();
-                JsonArray jsonLib = json.get("libraries").asArray();
-                JsonObject singleLibrary;
-                for (JsonValue value : jsonLib.values()) {
-                    singleLibrary = value.asObject();
-                    Library lib = this.getLibrary(singleLibrary);
-
-                    // add the library, if it should be added...
-                    if (lib.addLibrary()) {
-                        if (lib.addLibraryToDownloads()) {
-                            librariesToDL.add(lib);
-                        }
-                    }
-                }
-
-                // append assets.json
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
-
-                // append libraries...
-                if (librariesToDL.size() > 0) {
-                    for (Library library : librariesToDL) {
-                        Main.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.LIBRARIES + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
-                    }
+                // if there are files to download...
+                if (this.readJson(json)) {
+                    // ... start the download
+                    Main.startThread();
                 } else {
-                    Logger.fine("No need to download libraries...");
+                    Logger.fine("All needed files are downloaded...");
+                    Launcher.startGame();
                 }
-
-                // append minecraft.jar
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, Launcher.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
-
-                // start thread...
-                Main.startThread();
-
             } catch (Exception e) {
                 e.printStackTrace();
                 this.onError(action);

@@ -31,7 +31,7 @@ public class VARS {
         }
 
         public final static class JSON {
-            public final static String PACKS = "http://www.djgemo.de/packs.json";
+            public final static String PACKSERVER = "http://www.djgemo.de/";
             public final static String MC_ASSETS = "https://s3.amazonaws.com/Minecraft.Download/indexes/${version}.json";
             public final static String MC_VERSIONS = "http://s3.amazonaws.com/Minecraft.Download/versions/${version}/${version}.json";
         }

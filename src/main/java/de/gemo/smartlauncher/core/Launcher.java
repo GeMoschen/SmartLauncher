@@ -1,10 +1,14 @@
 package de.gemo.smartlauncher.core;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
+
+import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
@@ -25,23 +29,57 @@ public class Launcher {
         return INSTANCE.gameInfo;
     }
 
+    public static DownloadInfo getDownloadInfo() {
+        return INSTANCE.downloadInfo;
+    }
+
     private final Pack pack;
     private final String version;
     private final GameInfo gameInfo;
+    private final DownloadInfo downloadInfo;
 
     public Launcher(Pack pack, String version) {
         INSTANCE = this;
         this.pack = pack;
         this.version = version.replaceAll(" - recommended", "").trim();
+        this.downloadInfo = new DownloadInfo();
         this.gameInfo = new GameInfo(this.version, this.pack);
         this.launch();
     }
 
     private void launch() {
+        // reset old data...
+        Asset.reset();
+        Library.clearLibrarys();
+        Main.clearHTTPs();
+
+        // start...
         StatusFrame.INSTANCE.setText("Preparing download...");
         StatusFrame.INSTANCE.showGUI(true);
-        Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), new MCJsonDownloadListener(this.version, this.version + ".json")));
-        Main.startThread();
+        File versionFile = new File(VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json");
+        MCJsonDownloadListener listener = new MCJsonDownloadListener(this.version, this.version + ".json");
+        if (!versionFile.exists()) {
+            Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), listener));
+            Main.startThread();
+        } else {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(versionFile));
+                JsonObject json = JsonObject.readFrom(reader);
+                reader.close();
+
+                if (listener.readJson(json)) {
+                    Logger.fine("Some files are missing...");
+                    Main.startThread();
+                } else {
+                    Logger.fine("All needed files are downloaded...");
+                    Launcher.startGame();
+                }
+
+            } catch (Exception e) {
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, gameInfo), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".json"), listener));
+                Main.startThread();
+            }
+        }
     }
 
     private void extractLibraries() throws IOException {
@@ -57,6 +95,12 @@ public class Launcher {
     }
 
     public static void startGame() throws IOException {
+        // some output...
+        Logger.fine("Preparing launch...");
+
+        // clear http...
+        Main.clearHTTPs();
+
         // create dirs...
         StatusFrame.INSTANCE.setText("Creating directories...");
         Logger.fine("Creating directories...");
