@@ -22,7 +22,7 @@ public class GameWatcher implements Runnable {
         }
 
         // some output...
-        Logger.fine("Minecraft closed!");
+        Logger.fine("Minecraft closed! ( Exitvalue: " + this.gameProcess.exitValue() + " ) ");
 
         // show GUIs
         MainFrame.CORE.showFrame(true);

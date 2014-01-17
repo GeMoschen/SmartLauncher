@@ -156,11 +156,11 @@ public class MainFrame {
         for (JLabel label : this.packLabels) {
             label.setEnabled(show);
         }
-        versionBox.setEnabled(show);
+        this.versionBox.setEnabled(show);
         if (show) {
             this.frame.setState(Frame.NORMAL);
         } else {
-            frame.setState(Frame.ICONIFIED);
+            this.frame.setState(Frame.ICONIFIED);
         }
     }
 }
