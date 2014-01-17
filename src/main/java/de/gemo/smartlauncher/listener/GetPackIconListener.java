@@ -1,0 +1,62 @@
+package de.gemo.smartlauncher.listener;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+
+import javax.imageio.ImageIO;
+
+import de.gemo.smartlauncher.actions.GetPackIcon;
+import de.gemo.smartlauncher.frames.LoginFrame;
+import de.gemo.smartlauncher.frames.MainFrame;
+import de.gemo.smartlauncher.frames.StatusFrame;
+import de.gemo.smartlauncher.internet.ByteResponse;
+import de.gemo.smartlauncher.internet.HTTPAction;
+import de.gemo.smartlauncher.internet.HTTPListener;
+import de.gemo.smartlauncher.units.Pack;
+
+public class GetPackIconListener extends HTTPListener {
+
+    private static int count = 0;
+
+    public void onStart(HTTPAction action) {
+    }
+
+    public void onFinish(HTTPAction action) {
+        GetPackIcon thisAction = (GetPackIcon) action;
+        if (action.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            ByteResponse response = (ByteResponse) this.getWorker().getResponse();
+            try {
+                BufferedImage image = ImageIO.read(new ByteArrayInputStream(response.getResponse()));
+                thisAction.getPack().setIcon(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        count++;
+
+        if (count == Pack.loadedPacks.size()) {
+            new MainFrame("SmartLauncher", 300, 400);
+            if (LoginFrame.INSTANCE != null) {
+                LoginFrame.INSTANCE.showGUI(false);
+            }
+            if (StatusFrame.INSTANCE != null) {
+                StatusFrame.INSTANCE.showGUI(false);
+            }
+        }
+
+    }
+
+    @Override
+    public void onError(HTTPAction action) {
+        // do nothing...
+        count++;
+    }
+
+    @Override
+    public void onProgress(int maximumLength, int currentLength) {
+        // do nothing...
+    }
+
+}
