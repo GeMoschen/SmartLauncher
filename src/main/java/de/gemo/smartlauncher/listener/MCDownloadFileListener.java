@@ -42,8 +42,6 @@ public class MCDownloadFileListener extends HTTPListener {
             StatusFrame.INSTANCE.setText("download finished...");
             Logger.fine("Minecraft downloaded: " + this.fileName);
             Launcher.startGame();
-            StatusFrame.INSTANCE.showGUI(false);
-            MainFrame.CORE.showFrame(true);
         } catch (Exception e) {
             e.printStackTrace();
             this.onError(action);

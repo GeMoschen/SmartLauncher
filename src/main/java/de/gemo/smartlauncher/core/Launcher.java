@@ -135,6 +135,8 @@ public class Launcher {
             Process process = new ProcessBuilder(cmd).directory(this.gameInfo.getGameDir()).redirectErrorStream(true).start();
             if (process != null) {
                 Logger.fine("Minecraft started!");
+                StatusFrame.INSTANCE.showGUI(false);
+                new Thread(new GameWatcher(process)).start();
             } else {
                 // clear all...
                 Asset.reset();
