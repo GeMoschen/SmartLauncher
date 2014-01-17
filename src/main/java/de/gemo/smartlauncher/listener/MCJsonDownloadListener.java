@@ -61,8 +61,8 @@ public class MCJsonDownloadListener extends HTTPListener {
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
-                Launcher.INSTANCE.setMainClass(json.get("mainClass").asString());
-                Launcher.INSTANCE.setMCArguments(json.get("minecraftArguments").asString());
+                Launcher.getGameInfo().setMainClass(json.get("mainClass").asString());
+                Launcher.getGameInfo().setMCArguments(json.get("minecraftArguments").asString());
 
                 // get assetsfile...
                 String assetsFile = "legacy";
@@ -70,7 +70,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 if (assetsValue != null) {
                     assetsFile = assetsValue.asString().replaceAll("\"", "");
                 }
-                Launcher.INSTANCE.getGameInfo().setAssetVersion(assetsFile);
+                Launcher.getGameInfo().setAssetVersion(assetsFile);
 
                 // get libraries...
                 ArrayList<Library> librariesToDL = new ArrayList<Library>();
@@ -101,7 +101,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 }
 
                 // append minecraft.jar
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, Launcher.INSTANCE.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, Launcher.getGameInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
 
                 // start thread...
                 Main.startThread();

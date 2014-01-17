@@ -41,9 +41,9 @@ public class MCJsonAssetsListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
-            Logger.fine("Assetindex downloaded: " + Launcher.INSTANCE.getGameInfo().getAssetVersion() + ".json");
+            Logger.fine("Assetindex downloaded: " + Launcher.getGameInfo().getAssetVersion() + ".json");
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.ASSETS + "/indexes/" + Launcher.INSTANCE.getGameInfo().getAssetVersion() + ".json")));
+                BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.ASSETS + "/indexes/" + Launcher.getGameInfo().getAssetVersion() + ".json")));
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
