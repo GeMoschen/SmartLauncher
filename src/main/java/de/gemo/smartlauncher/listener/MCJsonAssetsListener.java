@@ -20,7 +20,6 @@ import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
 import de.gemo.smartlauncher.internet.Worker;
 import de.gemo.smartlauncher.units.Asset;
-import de.gemo.smartlauncher.units.Library;
 import de.gemo.smartlauncher.units.VARS;
 
 public class MCJsonAssetsListener extends HTTPListener {
@@ -41,9 +40,9 @@ public class MCJsonAssetsListener extends HTTPListener {
 
         try {
             StatusFrame.INSTANCE.setText("download finished...");
-            Logger.fine("Assetindex downloaded: " + Launcher.getGameInfo().getAssetVersion() + ".json");
+            Logger.fine("Assetindex downloaded: " + Launcher.getPackInfo().getAssetVersion() + ".json");
             try {
-                BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.ASSETS + "/indexes/" + Launcher.getGameInfo().getAssetVersion() + ".json")));
+                BufferedReader reader = new BufferedReader(new FileReader(new File(VARS.DIR.ASSETS + "/indexes/" + Launcher.getPackInfo().getAssetVersion() + ".json")));
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
@@ -90,18 +89,19 @@ public class MCJsonAssetsListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        Asset.reset();
-        Library.clearLibrarys();
-        Main.clearHTTPs();
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+        // clear...
+        Launcher.onError();
+
         StatusFrame.INSTANCE.showGUI(false);
         MainFrame.CORE.showFrame(true);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft... 5", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void onProgress(int maximumLength, int currentLength) {
-        // float percent = Float.valueOf(decimalFormat.format((float) (((float)
-        // currentLength / (float) maximumLength) * 10000f)));
-        // StatusFrame.INSTANCE.setProgress((int) percent);
+        float percent = ((float) currentLength / (float) maximumLength) * 100;
+        int percentInt = (int) (percent * 100);
+        percent = percentInt / 100f;
+        StatusFrame.INSTANCE.setProgress((int) percent);
     }
 }

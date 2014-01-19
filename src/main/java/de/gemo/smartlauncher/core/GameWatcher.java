@@ -15,7 +15,7 @@ public class GameWatcher implements Runnable {
         while (this.isRunning()) {
             // sleep for 500ms...
             try {
-                Thread.sleep(500);
+                Thread.sleep(250);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

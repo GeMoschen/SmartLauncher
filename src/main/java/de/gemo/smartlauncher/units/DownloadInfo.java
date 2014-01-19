@@ -1,4 +1,4 @@
-package de.gemo.smartlauncher.core;
+package de.gemo.smartlauncher.units;
 
 public class DownloadInfo {
     private int libraryCount = 0;

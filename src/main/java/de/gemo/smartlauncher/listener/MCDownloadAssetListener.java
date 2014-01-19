@@ -4,16 +4,14 @@ import java.net.HttpURLConnection;
 
 import javax.swing.JOptionPane;
 
-import de.gemo.smartlauncher.core.DownloadInfo;
 import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
-import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
 import de.gemo.smartlauncher.units.Asset;
-import de.gemo.smartlauncher.units.Library;
+import de.gemo.smartlauncher.units.DownloadInfo;
 
 public class MCDownloadAssetListener extends HTTPListener {
 
@@ -57,12 +55,12 @@ public class MCDownloadAssetListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        Asset.reset();
-        Library.clearLibrarys();
-        Main.clearHTTPs();
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+        // clear...
+        Launcher.onError();
+
         StatusFrame.INSTANCE.showGUI(false);
         MainFrame.CORE.showFrame(true);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft... 7", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

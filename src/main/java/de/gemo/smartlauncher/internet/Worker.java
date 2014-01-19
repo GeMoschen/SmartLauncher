@@ -36,19 +36,18 @@ public class Worker implements Runnable {
                 this.listener.onStart(this.action);
             }
             this.response = this.action.doAction();
-            this.finished = true;
-            this.error = false;
-
             if (this.listener != null) {
                 this.listener.onFinish(this.action);
             }
+            this.finished = true;
+            this.error = false;
         } catch (Exception e) {
+            e.printStackTrace();
             this.error = true;
             this.finished = true;
             if (this.listener != null) {
                 this.listener.onError(this.action);
             }
-            e.printStackTrace();
         }
     }
 

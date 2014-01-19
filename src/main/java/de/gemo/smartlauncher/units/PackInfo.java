@@ -19,24 +19,28 @@ import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.core.Main;
 
-public class GameInfo {
+public class PackInfo {
 
-    private final String gameVersion;
+    private final String packVersion;
     private String mainClass = null, mcArguments = null;
-    private String assetVersion = "TEST";
+    private String assetVersion = "TEST", gameVersion = "";
     private File gameDir, nativesDir, assetsDir;
     private final Pack pack;
 
-    public GameInfo(String gameVersion, Pack pack) {
-        this.gameVersion = gameVersion.replaceAll("\"", "");
+    private boolean overrideMainClass = false;
+    private boolean overrideMCArguments = false;
+
+    public PackInfo(String packVersion, Pack pack) {
+        this.packVersion = packVersion.replaceAll("\"", "");
         this.pack = pack;
+        this.createDirs();
     }
 
-    public void createDirs() {
+    private void createDirs() {
         AuthData authData = Main.authData;
 
         // create gamedir
-        this.gameDir = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.gameVersion + "/");
+        this.gameDir = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packVersion + "/");
 
         // create assetsdir
         this.assetsDir = new File(VARS.DIR.ASSETS + "/");
@@ -50,8 +54,16 @@ public class GameInfo {
         this.nativesDir.mkdirs();
     }
 
+    public void setGameVersion(String gameVersion) {
+        this.gameVersion = gameVersion;
+    }
+
     public String getGameVersion() {
         return gameVersion;
+    }
+
+    public String getPackVersion() {
+        return packVersion;
     }
 
     public void setAssetVersion(String assetVersion) {
@@ -67,10 +79,21 @@ public class GameInfo {
     }
 
     public void setMainClass(String mainClass) {
+        if (this.overrideMainClass) {
+            return;
+        }
         if (mainClass != null) {
             mainClass = mainClass.replaceAll("\"", "");
         }
         this.mainClass = mainClass;
+    }
+
+    public void overrideMainClass(String mainClass) {
+        if (mainClass != null) {
+            mainClass = mainClass.replaceAll("\"", "");
+        }
+        this.mainClass = mainClass;
+        this.overrideMainClass = true;
     }
 
     public String getMainClass() {
@@ -78,21 +101,31 @@ public class GameInfo {
     }
 
     public void setMCArguments(String mcArguments) {
+        if (this.overrideMCArguments) {
+            return;
+        }
         if (mcArguments != null) {
             mcArguments = mcArguments.replaceAll("\"", "");
         }
         this.mcArguments = mcArguments;
     }
 
+    public void overrideMCArguments(String mcArguments) {
+        if (mcArguments != null) {
+            mcArguments = mcArguments.replaceAll("\"", "");
+        }
+        this.mcArguments = mcArguments;
+        this.overrideMCArguments = true;
+    }
+
     public ArrayList<String> getMCArguments() {
         ArrayList<String> args = new ArrayList<String>();
-
         String[] split = this.mcArguments.split(" ");
 
         AuthData authData = Main.authData;
         for (int index = 0; index < split.length; index += 2) {
             String current = split[index];
-            String next = "";
+            String next = split[index + 1];
             if (current.equalsIgnoreCase("--username")) {
                 next = authData.getMCUserName();
             }
@@ -100,13 +133,14 @@ public class GameInfo {
                 next = this.gameVersion;
             }
             if (current.equalsIgnoreCase("--gameDir")) {
-                next = this.gameDir.getAbsolutePath();
+                next = "\"" + this.gameDir.getAbsolutePath() + "\"";
             }
             if (current.equalsIgnoreCase("--assetsDir")) {
-                next = this.assetsDir.getAbsolutePath();
+                next = "\"" + this.assetsDir.getAbsolutePath();
                 if (this.isAssetsVirtual()) {
-                    next += "\\virtual\\legacy\\";
+                    next += "/virtual/legacy";
                 }
+                next += "\"";
             }
             if (current.equalsIgnoreCase("--assetIndex")) {
                 next = this.getAssetVersion();
@@ -117,15 +151,19 @@ public class GameInfo {
             if (current.equalsIgnoreCase("--accessToken")) {
                 next = authData.getAccessToken();
             }
+            if (current.equalsIgnoreCase("--session")) {
+                next = authData.getAccessToken() + ":" + authData.getProfileID();
+            }
             if (current.equalsIgnoreCase("--userProperties")) {
                 next = "{}";
             }
             if (current.equalsIgnoreCase("--userType")) {
                 next = "mojang";
             }
+
             if (next.length() > 0) {
                 args.add(current);
-                args.add(next);
+                args.add(next.replaceAll("/", "\\\\"));
             }
         }
         return args;
@@ -220,4 +258,5 @@ public class GameInfo {
     public File getNativesDir() {
         return nativesDir;
     }
+
 }

@@ -35,9 +35,8 @@ public class DownloadAction implements HTTPAction, Listenerable {
         // add user-agent
         con.setRequestProperty("User-Agent", Worker.USER_AGENT);
 
-        this.responseCode = con.getResponseCode();
-
         // always check HTTP response code first
+        this.responseCode = con.getResponseCode();
         if (this.responseCode == HttpURLConnection.HTTP_OK) {
             this.contentLength = con.getContentLength();
             this.loadedLength = 0;

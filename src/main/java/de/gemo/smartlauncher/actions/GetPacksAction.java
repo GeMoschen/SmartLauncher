@@ -24,7 +24,7 @@ public class GetPacksAction implements HTTPAction {
 
     public GetPacksAction() {
         this.shortDescription = "getting packs...";
-        this.packsURL = (VARS.URL.JSON.PACKSERVER + "packs.json");
+        this.packsURL = (VARS.URL.PACKSERVER + "packs.json");
         // this.packsURL = (VARS.URL.JSON.PACKSERVER + "packs.php?userName=" +
         // Main.authData.getMCUserName());
     }
@@ -90,4 +90,5 @@ public class GetPacksAction implements HTTPAction {
     public String getShortDescription() {
         return this.shortDescription;
     }
+
 }
