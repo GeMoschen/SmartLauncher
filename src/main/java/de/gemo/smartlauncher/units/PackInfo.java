@@ -259,4 +259,12 @@ public class PackInfo {
         return nativesDir;
     }
 
+    public Pack getPack() {
+        return pack;
+    }
+
+    public String getPackName() {
+        return this.pack.getPackName();
+    }
+
 }

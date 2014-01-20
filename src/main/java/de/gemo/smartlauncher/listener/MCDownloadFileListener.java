@@ -2,11 +2,8 @@ package de.gemo.smartlauncher.listener;
 
 import java.net.HttpURLConnection;
 
-import javax.swing.JOptionPane;
-
 import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
-import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
@@ -36,7 +33,9 @@ public class MCDownloadFileListener extends HTTPListener {
         try {
             StatusFrame.INSTANCE.setText("download finished...");
             Logger.fine("Minecraft downloaded: " + this.fileName);
-            Launcher.startGame();
+            if (Launcher.prepareGame()) {
+                Launcher.startGame();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             this.onError(action);
@@ -45,12 +44,7 @@ public class MCDownloadFileListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        // clear...
-        Launcher.onError();
-
-        StatusFrame.INSTANCE.showFrame(false);
-        MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+        Launcher.handleException(new Exception("Could not download minecraft.jar!"));
     }
 
     @Override

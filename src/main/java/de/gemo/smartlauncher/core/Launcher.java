@@ -1,24 +1,14 @@
 package de.gemo.smartlauncher.core;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.JOptionPane;
 
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.core.minecraft.MinecraftProcess;
 import de.gemo.smartlauncher.frames.MainFrame;
@@ -48,24 +38,36 @@ public class Launcher {
         return INSTANCE.downloadInfo;
     }
 
-    private final Pack pack;
     private final PackInfo packInfo;
     private final DownloadInfo downloadInfo;
 
     public Launcher(Pack pack, String packVersion) {
         INSTANCE = this;
-        this.pack = pack;
         this.downloadInfo = new DownloadInfo();
         packVersion = packVersion.replaceAll(" - recommended", "").trim();
-        this.packInfo = new PackInfo(packVersion, this.pack);
-        this.downloadPack();
+        this.packInfo = new PackInfo(packVersion, pack);
+        this.launch();
     }
 
-    private void downloadPack() {
+    public void launch() {
+        try {
+            if (this.checkPack() && Launcher.checkFiles() && Launcher.prepareGame() && Launcher.startGame()) {
+                // simply do nothing...
+            }
+        } catch (Exception e) {
+            Launcher.handleException(e);
+        }
+    }
+
+    public static void handleException(Exception e) {
+        Launcher.onError();
+        Logger.error(e.getMessage());
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft...\n\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private boolean checkPack() {
         // reset old data...
-        Asset.reset();
-        Library.clearLibrarys();
-        Main.clearHTTPs();
+        Launcher.clearAll();
 
         // SOME INFO
         StatusFrame.INSTANCE.showFrame(true);
@@ -75,149 +77,48 @@ public class Launcher {
         // start...
         AuthData authData = Main.authData;
         GetSinglePackListener listener = new GetSinglePackListener();
-        File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
-        File packFile = new File(VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
-        String packURL = (VARS.URL.PACKSERVER + "packs/" + this.pack.getPackName() + "/" + this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
+        File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.packInfo.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
+        File packFile = new File(VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
+        String packURL = (VARS.URL.PACKSERVER + "packs/" + this.packInfo.getPackName() + "/" + this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
         if (!packJson.exists() || !packFile.exists()) {
             if (!packFile.exists()) {
                 StatusFrame.INSTANCE.setText("downloading packfile...");
-                Logger.info("Packfile is missing... downloading pack...");
-                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                Logger.info("Packfile is missing...");
+                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
                 Main.startThread();
+                return false;
             } else {
-                if (!this.extractPack()) {
+                if (!this.packInfo.getPack().extractPack()) {
                     StatusFrame.INSTANCE.setText("downloading packfile...");
-                    Logger.info("Packfile is invalid... downloading pack...");
-                    Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                    Logger.info("Packfile is invalid...");
+                    Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
                     Main.startThread();
+                    return false;
                 } else {
                     Logger.fine("Packfile is valid...");
-                    Launcher.INSTANCE.launchPack();
+                    return true;
                 }
             }
         } else {
-            if (!this.handlePackJson(packJson)) {
+            if (!this.packInfo.getPack().handlePackJson(packJson)) {
                 Logger.info("pack.json is invalid... redownloading pack...");
-                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
                 Main.startThread();
+                return false;
             } else {
                 Logger.fine("Pack is valid...");
-                Launcher.INSTANCE.launchPack();
+                return true;
             }
         }
     }
 
-    public boolean extractPack() {
-        try {
-            StatusFrame.INSTANCE.setText("extracting packfile...");
-            InputStream inputStream = new FileInputStream(new File(VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"));
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStream));
-            ZipEntry entry;
-
-            String dir = VARS.DIR.PROFILES + "/" + Main.authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/";
-            while ((entry = zis.getNextEntry()) != null) {
-                // modify entryName...
-                String entryName = entry.getName();
-                entryName = entryName.replaceFirst(this.pack.getPackName() + "/", "");
-                entryName = entryName.replaceFirst("minecraft/", "");
-
-                // create dirs...
-                if (entry.isDirectory()) {
-                    if (entryName.length() < 1) {
-                        continue;
-                    }
-                    File file = new File(dir + entryName);
-                    file.mkdirs();
-                    continue;
-                }
-
-                entryName = (dir + entryName).replaceAll("/", "\\\\");
-
-                // extract file...
-                int size;
-                byte[] buffer = new byte[2048];
-                File file = new File(entryName);
-
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
-
-                while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
-                    bos.write(buffer, 0, size);
-                }
-                bos.flush();
-                bos.close();
-                if (entryName.endsWith("pack.json")) {
-                    if (!this.handlePackJson(entryName)) {
-                        return false;
-                    }
-                }
-            }
-            zis.close();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean handlePackJson(String fileName) {
-        return this.handlePackJson(new File(fileName));
-    }
-
-    private boolean handlePackJson(File file) {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            JsonObject json = JsonObject.readFrom(reader);
-
-            // get minecraft-version
-            JsonValue jsonValue = json.get("id");
-            if (jsonValue == null) {
-                return false;
-            }
-            Launcher.getPackInfo().setGameVersion(jsonValue.asString().replaceAll("\"", ""));
-
-            // override mainClass...
-            jsonValue = json.get("mainClass");
-            if (jsonValue != null) {
-                Launcher.getPackInfo().overrideMainClass(jsonValue.toString());
-            }
-
-            // override mcArguments
-            jsonValue = json.get("minecraftArguments");
-            if (jsonValue != null) {
-                Launcher.getPackInfo().overrideMCArguments(jsonValue.toString());
-            }
-
-            // get libraries...
-            jsonValue = json.get("libraries");
-            if (jsonValue != null) {
-                JsonArray jsonLib = jsonValue.asArray();
-                JsonObject singleLibrary;
-                for (JsonValue value : jsonLib.values()) {
-                    singleLibrary = value.asObject();
-                    Library lib = new Library(singleLibrary);
-
-                    // add the library, if it should be added...
-                    if (lib.addLibrary()) {
-                        lib.addLibraryToDownloads();
-                    }
-                }
-            }
-
-            // close stream
-            reader.close();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void launchPack() {
-        File versionFile = new File(VARS.DIR.VERSIONS + "/" + this.packInfo.getGameVersion() + "/", this.packInfo.getGameVersion() + ".json");
-        MCJsonDownloadListener listener = new MCJsonDownloadListener(this.packInfo.getGameVersion() + ".json");
+    public static boolean checkFiles() {
+        File versionFile = new File(VARS.DIR.VERSIONS + "/" + Launcher.INSTANCE.packInfo.getGameVersion() + "/", Launcher.INSTANCE.packInfo.getGameVersion() + ".json");
+        MCJsonDownloadListener listener = new MCJsonDownloadListener(Launcher.INSTANCE.packInfo.getGameVersion() + ".json");
         if (!versionFile.exists()) {
-            Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, packInfo), VARS.DIR.VERSIONS + "/" + this.packInfo.getGameVersion() + "/", this.packInfo.getGameVersion() + ".json"), listener));
+            Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, Launcher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + Launcher.INSTANCE.packInfo.getGameVersion() + "/", Launcher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
             Main.startThread();
+            return false;
         } else {
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(versionFile));
@@ -227,30 +128,20 @@ public class Launcher {
                 if (listener.readJson(json)) {
                     Logger.info("Some files are missing...");
                     Main.startThread();
+                    return false;
                 } else {
                     Logger.fine("All needed files are downloaded...");
-                    Launcher.startGame();
+                    return true;
                 }
             } catch (Exception e) {
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, packInfo), VARS.DIR.VERSIONS + "/" + this.packInfo.getGameVersion() + "/", this.packInfo.getGameVersion() + ".json"), listener));
+                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, Launcher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + Launcher.INSTANCE.packInfo.getGameVersion() + "/", Launcher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
                 Main.startThread();
+                return false;
             }
         }
     }
 
-    private void extractLibraries() throws IOException {
-        ArrayList<Library> libraryList = Library.getLibraryList();
-        for (Library library : libraryList) {
-            // only extract...
-            if (!library.isAllow() || !library.isExtract()) {
-                continue;
-            }
-
-            this.packInfo.unpackNatives(library);
-        }
-    }
-
-    public static void startGame() throws IOException {
+    public static boolean prepareGame() {
         if (!INSTANCE.error) {
             // some output...
             StatusFrame.INSTANCE.showFrame(true);
@@ -259,19 +150,103 @@ public class Launcher {
             // extract libraries...
             StatusFrame.INSTANCE.setText("Extracting libraries...");
             Logger.info("Extracting libraries...");
-            INSTANCE.extractLibraries();
+            if (!INSTANCE.extractLibraries()) {
+                return false;
+            }
 
             // reconstruct assets...
             StatusFrame.INSTANCE.setText("Reconstructing assets...");
             Logger.info("Reconstructing assets...");
-            if (INSTANCE.packInfo.reconstructAssets()) {
-                // ... and finally start minecraft
-                INSTANCE.launchGame();
-            }
+            return INSTANCE.packInfo.reconstructAssets();
         } else {
             // show GUIs
             StatusFrame.INSTANCE.showFrame(false);
             MainFrame.INSTANCE.showFrame(true);
+            return false;
+        }
+    }
+
+    public static boolean startGame() {
+        ArrayList<String> cmd = new ArrayList<String>();
+
+        // standard...
+        cmd.add("java");
+        cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+
+        // some extra-info
+        cmd.add("-Xmx2G");
+
+        // append nativesdir...
+        cmd.add("-Djava.library.path=\"" + Launcher.INSTANCE.packInfo.getNativesDir().getAbsolutePath() + "\"");
+
+        // append classpath
+        cmd.add("-cp");
+        cmd.add(Launcher.INSTANCE.createClasspathArgument());
+
+        // append mainclass
+        cmd.add(Launcher.INSTANCE.packInfo.getMainClass());
+
+        // append arguments needed by minecraft...
+        cmd.addAll(Launcher.INSTANCE.packInfo.getMCArguments());
+
+        // ... and finally, try to launch...
+        try {
+            if (!Launcher.INSTANCE.error) {
+                String fullCMD = "";
+                for (String cm : cmd) {
+                    fullCMD += cm + " ";
+                }
+
+                Logger.info("Starting Minecraft...");
+                StatusFrame.INSTANCE.setText("Starting Minecraft...");
+                Logger.info(fullCMD);
+                Process process = new ProcessBuilder(cmd).directory(Launcher.INSTANCE.packInfo.getGameDir()).redirectErrorStream(true).start();
+                if (process != null) {
+                    Logger.fine("Minecraft started!");
+                    new MinecraftProcess(process);
+                } else {
+                    // clear all...
+                    Launcher.onError();
+
+                    // show GUIs
+                    StatusFrame.INSTANCE.showFrame(false);
+                    MainFrame.INSTANCE.showFrame(true);
+
+                    // some output...
+                    Logger.error("Could not start Minecraft!");
+                    JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                return process != null;
+            } else {
+                // show GUIs
+                StatusFrame.INSTANCE.showFrame(false);
+                MainFrame.INSTANCE.showFrame(true);
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Launcher.handleException(new Exception("Error starting game!"));
+            return false;
+        }
+    }
+
+    private boolean extractLibraries() {
+        try {
+            ArrayList<Library> libraryList = Library.getLibraryList();
+            for (Library library : libraryList) {
+                // only extract...
+                if (!library.isAllow() || !library.isExtract()) {
+                    continue;
+                }
+                this.packInfo.unpackNatives(library);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            StatusFrame.INSTANCE.showFrame(false);
+            MainFrame.INSTANCE.showFrame(true);
+            Launcher.handleException(new Exception("Error unpacking natives!"));
+            return false;
         }
     }
 
@@ -299,71 +274,15 @@ public class Launcher {
         return libraries;
     }
 
-    private void launchGame() {
-        ArrayList<String> cmd = new ArrayList<String>();
-
-        // standard...
-        cmd.add("java");
-        cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-
-        // some extra-info
-        cmd.add("-Xmx2G");
-
-        // append nativesdir...
-        cmd.add("-Djava.library.path=\"" + this.packInfo.getNativesDir().getAbsolutePath() + "\"");
-
-        // append classpath
-        cmd.add("-cp");
-        cmd.add(this.createClasspathArgument());
-
-        // append mainclass
-        cmd.add(this.packInfo.getMainClass());
-
-        // append arguments needed by minecraft...
-        cmd.addAll(this.packInfo.getMCArguments());
-
-        // ... and finally, try to launch...
-        try {
-            if (!this.error) {
-                String fullCMD = "";
-                for (String cm : cmd) {
-                    fullCMD += cm + " ";
-                }
-
-                Logger.info("Starting Minecraft...");
-                StatusFrame.INSTANCE.setText("Starting Minecraft...");
-                Logger.info(fullCMD);
-                Process process = new ProcessBuilder(cmd).directory(this.packInfo.getGameDir()).redirectErrorStream(true).start();
-                if (process != null) {
-                    Logger.fine("Minecraft started!");
-                    new MinecraftProcess(process);
-                } else {
-                    // clear all...
-                    Launcher.onError();
-
-                    // show GUIs
-                    StatusFrame.INSTANCE.showFrame(false);
-                    MainFrame.INSTANCE.showFrame(true);
-
-                    // some output...
-                    Logger.error("Could not start Minecraft!");
-                    JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                // show GUIs
-                StatusFrame.INSTANCE.showFrame(false);
-                MainFrame.INSTANCE.showFrame(true);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void onError() {
+    public static void clearAll() {
         // clear all...
         Asset.reset();
         Library.clearLibrarys();
         Main.clearHTTPs();
+    }
+
+    public static void onError() {
+        Launcher.clearAll();
         INSTANCE.error = true;
     }
 }

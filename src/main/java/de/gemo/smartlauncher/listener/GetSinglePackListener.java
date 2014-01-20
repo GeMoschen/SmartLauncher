@@ -23,8 +23,10 @@ public class GetSinglePackListener extends HTTPListener {
                 Logger.fine("Pack downloaded...");
 
                 // launch game...
-                if (Launcher.INSTANCE.extractPack()) {
-                    Launcher.INSTANCE.launchPack();
+                if (Launcher.getPackInfo().getPack().extractPack()) {
+                    if (Launcher.checkFiles() && Launcher.prepareGame()) {
+                        Launcher.startGame();
+                    }
                 } else {
                     // clear all...
                     Launcher.onError();
@@ -56,14 +58,7 @@ public class GetSinglePackListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        // clear...
-        Launcher.onError();
-
-        // show info...
-        Logger.error("Could not download pack! (Statuscode: " + action.getResponseCode() + ")");
-        StatusFrame.INSTANCE.showFrame(false);
-        MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not download pack...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
+        Launcher.handleException(new Exception("Could not download pack! (Statuscode: " + action.getResponseCode() + ")"));
     }
 
     @Override

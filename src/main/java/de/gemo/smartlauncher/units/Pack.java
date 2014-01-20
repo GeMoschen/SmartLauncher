@@ -2,16 +2,29 @@ package de.gemo.smartlauncher.units;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
+import de.gemo.smartlauncher.core.Launcher;
+import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
+import de.gemo.smartlauncher.frames.StatusFrame;
 
 public class Pack {
     public static BufferedImage NO_ICON = null;
@@ -126,6 +139,111 @@ public class Pack {
 
     public synchronized BufferedImage getIcon() {
         return icon;
+    }
+
+    public boolean extractPack() {
+        try {
+            StatusFrame.INSTANCE.setText("extracting packfile...");
+            InputStream inputStream = new FileInputStream(new File(VARS.DIR.PACKS + "/" + this.getPackName(), this.getPackName() + "-" + Launcher.getPackInfo().getPackVersion() + ".zip"));
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStream));
+            ZipEntry entry;
+
+            String dir = VARS.DIR.PROFILES + "/" + Main.authData.getMCUserName() + "/" + this.getPackName() + "/" + Launcher.getPackInfo().getPackVersion() + "/";
+            while ((entry = zis.getNextEntry()) != null) {
+                // modify entryName...
+                String entryName = entry.getName();
+                entryName = entryName.replaceFirst(this.getPackName() + "/", "");
+                entryName = entryName.replaceFirst("minecraft/", "");
+
+                // create dirs...
+                if (entry.isDirectory()) {
+                    if (entryName.length() < 1) {
+                        continue;
+                    }
+                    File file = new File(dir + entryName);
+                    file.mkdirs();
+                    continue;
+                }
+
+                entryName = (dir + entryName).replaceAll("/", "\\\\");
+
+                // extract file...
+                int size;
+                byte[] buffer = new byte[2048];
+                File file = new File(entryName);
+
+                FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
+
+                while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+                    bos.write(buffer, 0, size);
+                }
+                bos.flush();
+                bos.close();
+                if (entryName.endsWith("pack.json")) {
+                    if (!this.handlePackJson(entryName)) {
+                        return false;
+                    }
+                }
+            }
+            zis.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean handlePackJson(String fileName) {
+        return this.handlePackJson(new File(fileName));
+    }
+
+    public boolean handlePackJson(File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            JsonObject json = JsonObject.readFrom(reader);
+
+            // get minecraft-version
+            JsonValue jsonValue = json.get("id");
+            if (jsonValue == null) {
+                return false;
+            }
+            Launcher.getPackInfo().setGameVersion(jsonValue.asString().replaceAll("\"", ""));
+
+            // override mainClass...
+            jsonValue = json.get("mainClass");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMainClass(jsonValue.toString());
+            }
+
+            // override mcArguments
+            jsonValue = json.get("minecraftArguments");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMCArguments(jsonValue.toString());
+            }
+
+            // get libraries...
+            jsonValue = json.get("libraries");
+            if (jsonValue != null) {
+                JsonArray jsonLib = jsonValue.asArray();
+                JsonObject singleLibrary;
+                for (JsonValue value : jsonLib.values()) {
+                    singleLibrary = value.asObject();
+                    Library lib = new Library(singleLibrary);
+
+                    // add the library, if it should be added...
+                    if (lib.addLibrary()) {
+                        lib.addLibraryToDownloads();
+                    }
+                }
+            }
+
+            // close stream
+            reader.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

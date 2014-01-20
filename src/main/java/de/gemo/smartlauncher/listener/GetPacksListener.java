@@ -2,20 +2,19 @@ package de.gemo.smartlauncher.listener;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.actions.GetPackIconAction;
+import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.internet.GETResponse;
-import de.gemo.smartlauncher.internet.Worker;
 import de.gemo.smartlauncher.internet.HTTPAction;
 import de.gemo.smartlauncher.internet.HTTPListener;
+import de.gemo.smartlauncher.internet.Worker;
 import de.gemo.smartlauncher.units.Pack;
 import de.gemo.smartlauncher.units.PackVersion;
 
@@ -82,8 +81,7 @@ public class GetPacksListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        Logger.error("Could not fetch packs!");
-        JOptionPane.showMessageDialog(null, "Could not fetch available packs...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
+        Launcher.handleException(new Exception("Could not fetch available packs...\nExiting..."));
         MainFrame.INSTANCE.exit(0);
     }
 

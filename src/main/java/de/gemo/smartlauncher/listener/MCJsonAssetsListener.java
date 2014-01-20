@@ -6,14 +6,11 @@ import java.io.FileReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.core.Launcher;
 import de.gemo.smartlauncher.core.Logger;
 import de.gemo.smartlauncher.core.Main;
-import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.DownloadAction;
 import de.gemo.smartlauncher.internet.HTTPAction;
@@ -76,12 +73,7 @@ public class MCJsonAssetsListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        // clear...
-        Launcher.onError();
-
-        StatusFrame.INSTANCE.showFrame(false);
-        MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft... 5", "Error", JOptionPane.ERROR_MESSAGE);
+        Launcher.handleException(new Exception("Could not download assets.json!"));
     }
 
     @Override

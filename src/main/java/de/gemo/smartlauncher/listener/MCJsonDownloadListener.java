@@ -168,7 +168,9 @@ public class MCJsonDownloadListener extends HTTPListener {
                     Main.startThread();
                 } else {
                     Logger.fine("All needed files are downloaded...");
-                    Launcher.startGame();
+                    if (Launcher.prepareGame()) {
+                        Launcher.startGame();
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -182,12 +184,7 @@ public class MCJsonDownloadListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        // clear...
-        Launcher.onError();
-
-        StatusFrame.INSTANCE.showFrame(false);
-        MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
+        Launcher.handleException(new Exception("Could not download version.json!"));
     }
 
     @Override
