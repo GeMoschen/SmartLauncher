@@ -45,13 +45,6 @@ public class MCJsonAssetsListener extends HTTPListener {
                 JsonObject json = JsonObject.readFrom(reader);
                 reader.close();
 
-                // get assetsfile...
-                // boolean virtual = false;
-                // JsonValue virtualValue = json.get("virtual");
-                // if (virtualValue != null) {
-                // virtual = virtualValue.asBoolean();
-                // }
-
                 ArrayList<Asset> assetsToDL = new ArrayList<Asset>();
                 JsonObject objects = json.get("objects").asObject();
                 for (String objectName : objects.names()) {
