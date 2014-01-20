@@ -23,6 +23,7 @@ public class MCDownloadFileListener extends HTTPListener {
     public void onStart(HTTPAction action) {
         StatusFrame.INSTANCE.setProgress(0);
         StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
+        Logger.info("downloading minecraft '" + this.fileName + "'...");
     }
 
     @Override

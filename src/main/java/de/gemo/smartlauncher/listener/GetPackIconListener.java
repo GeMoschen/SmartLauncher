@@ -27,7 +27,7 @@ public class GetPackIconListener extends HTTPListener {
     }
 
     public void onStart(HTTPAction action) {
-        Logger.fine("Getting icon for '" + this.pack.getPackName() + "'...");
+        Logger.info("Getting icon for '" + this.pack.getPackName() + "'...");
     }
 
     public void onFinish(HTTPAction action) {

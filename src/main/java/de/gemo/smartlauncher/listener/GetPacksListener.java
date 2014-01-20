@@ -22,7 +22,7 @@ import de.gemo.smartlauncher.units.PackVersion;
 public class GetPacksListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
-        Logger.fine("getting packs...");
+        Logger.info("getting packs...");
     }
 
     public void onFinish(HTTPAction action) {

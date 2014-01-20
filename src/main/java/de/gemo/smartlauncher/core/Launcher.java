@@ -218,7 +218,7 @@ public class Launcher {
                 reader.close();
 
                 if (listener.readJson(json)) {
-                    Logger.fine("Some files are missing...");
+                    Logger.info("Some files are missing...");
                     Main.startThread();
                 } else {
                     Logger.fine("All needed files are downloaded...");
@@ -247,16 +247,16 @@ public class Launcher {
         if (!INSTANCE.error) {
             // some output...
             StatusFrame.INSTANCE.showFrame(true);
-            Logger.fine("Preparing launch...");
+            Logger.info("Preparing launch...");
 
             // extract libraries...
             StatusFrame.INSTANCE.setText("Extracting libraries...");
-            Logger.fine("Extracting libraries...");
+            Logger.info("Extracting libraries...");
             INSTANCE.extractLibraries();
 
             // reconstruct assets...
             StatusFrame.INSTANCE.setText("Reconstructing assets...");
-            Logger.fine("Reconstructing assets...");
+            Logger.info("Reconstructing assets...");
             if (INSTANCE.packInfo.reconstructAssets()) {
                 // ... and finally start minecraft
                 INSTANCE.launchGame();
@@ -323,9 +323,9 @@ public class Launcher {
                     fullCMD += cm + " ";
                 }
 
-                Logger.fine("Starting Minecraft...");
+                Logger.info("Starting Minecraft...");
                 StatusFrame.INSTANCE.setText("Starting Minecraft...");
-                Logger.fine(fullCMD);
+                Logger.info(fullCMD);
                 Process process = new ProcessBuilder(cmd).directory(this.packInfo.getGameDir()).redirectErrorStream(true).start();
                 if (process != null) {
                     Logger.fine("Minecraft started!");

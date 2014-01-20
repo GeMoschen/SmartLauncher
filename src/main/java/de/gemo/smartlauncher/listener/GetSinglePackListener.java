@@ -14,7 +14,7 @@ import de.gemo.smartlauncher.internet.HTTPListener;
 public class GetSinglePackListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
-        Logger.info(action.getShortDescription());
+        Logger.info("downloading packfile: '" + action.getShortDescription() + "'...");
     }
 
     public void onFinish(HTTPAction action) {

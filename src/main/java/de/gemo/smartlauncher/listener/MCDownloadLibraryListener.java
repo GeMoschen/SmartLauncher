@@ -25,6 +25,7 @@ public class MCDownloadLibraryListener extends HTTPListener {
     public void onStart(HTTPAction action) {
         StatusFrame.INSTANCE.setProgress(0);
         StatusFrame.INSTANCE.setText("downloading '" + this.library.getFileName() + "'...");
+        Logger.info("downloading library '" + this.library.getFileName() + "'...");
     }
 
     @Override

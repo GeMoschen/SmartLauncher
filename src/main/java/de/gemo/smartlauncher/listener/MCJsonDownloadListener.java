@@ -39,6 +39,7 @@ public class MCJsonDownloadListener extends HTTPListener {
     public void onStart(HTTPAction action) {
         StatusFrame.INSTANCE.setProgress(0);
         StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
+        Logger.info("downloading '" + this.fileName + "'...");
     }
 
     /**

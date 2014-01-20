@@ -21,7 +21,7 @@ import de.gemo.smartlauncher.units.AuthData;
 public class LoginListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
-        Logger.fine("Logging in...");
+        Logger.info("Logging in...");
     }
 
     public void onFinish(HTTPAction action) {

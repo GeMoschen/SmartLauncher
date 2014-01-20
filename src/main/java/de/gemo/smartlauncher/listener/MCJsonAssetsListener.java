@@ -28,6 +28,7 @@ public class MCJsonAssetsListener extends HTTPListener {
     public void onStart(HTTPAction action) {
         StatusFrame.INSTANCE.setProgress(0);
         StatusFrame.INSTANCE.setText("downloading assets...");
+        Logger.info("downloading assets.json...");
     }
 
     @Override
