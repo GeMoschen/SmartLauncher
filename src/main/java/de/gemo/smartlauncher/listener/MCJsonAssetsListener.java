@@ -93,7 +93,7 @@ public class MCJsonAssetsListener extends HTTPListener {
         Launcher.onError();
 
         StatusFrame.INSTANCE.showGUI(false);
-        MainFrame.CORE.showFrame(true);
+        MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not start Minecraft... 5", "Error", JOptionPane.ERROR_MESSAGE);
     }
 

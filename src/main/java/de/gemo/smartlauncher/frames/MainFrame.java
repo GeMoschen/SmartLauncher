@@ -20,7 +20,7 @@ import de.gemo.smartlauncher.units.PackVersion;
 
 public class MainFrame {
 
-    public static MainFrame CORE;
+    public static MainFrame INSTANCE;
 
     public static int IMAGE_DIM = 32;
 
@@ -33,7 +33,7 @@ public class MainFrame {
     private JLabel selectedLabel = null;
 
     public MainFrame(String title, int width, int height) {
-        MainFrame.CORE = this;
+        MainFrame.INSTANCE = this;
         this.frame = new JFrame(title);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setBounds(0, 0, width, height);

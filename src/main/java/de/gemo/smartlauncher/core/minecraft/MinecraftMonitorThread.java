@@ -1,8 +1,10 @@
-package de.gemo.smartlauncher.core;
+package de.gemo.smartlauncher.core.minecraft;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import de.gemo.smartlauncher.core.Logger;
 
 public class MinecraftMonitorThread extends Thread {
 

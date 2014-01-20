@@ -84,7 +84,7 @@ public class GetPacksListener extends HTTPListener {
     public void onError(HTTPAction action) {
         Logger.error("Could not fetch packs!");
         JOptionPane.showMessageDialog(null, "Could not fetch available packs...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
-        MainFrame.CORE.exit(0);
+        MainFrame.INSTANCE.exit(0);
     }
 
     @Override

@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.actions.GetSinglePackAction;
+import de.gemo.smartlauncher.core.minecraft.MinecraftProcess;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.DownloadAction;
@@ -60,7 +61,7 @@ public class Launcher {
         Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), new GetSinglePackListener()));
         Main.startThread();
         StatusFrame.INSTANCE.showGUI(true);
-        MainFrame.CORE.showFrame(false);
+        MainFrame.INSTANCE.showFrame(false);
     }
 
     public void launchPack() {
@@ -128,7 +129,7 @@ public class Launcher {
         } else {
             // show GUIs
             StatusFrame.INSTANCE.showGUI(false);
-            MainFrame.CORE.showFrame(true);
+            MainFrame.INSTANCE.showFrame(true);
         }
     }
 
@@ -201,7 +202,7 @@ public class Launcher {
 
                     // show GUIs
                     StatusFrame.INSTANCE.showGUI(false);
-                    MainFrame.CORE.showFrame(true);
+                    MainFrame.INSTANCE.showFrame(true);
 
                     // some output...
                     Logger.error("Could not start Minecraft!");
@@ -210,7 +211,7 @@ public class Launcher {
             } else {
                 // show GUIs
                 StatusFrame.INSTANCE.showGUI(false);
-                MainFrame.CORE.showFrame(true);
+                MainFrame.INSTANCE.showFrame(true);
             }
         } catch (IOException e) {
             e.printStackTrace();

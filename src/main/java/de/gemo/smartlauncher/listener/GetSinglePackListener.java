@@ -57,7 +57,7 @@ public class GetSinglePackListener extends HTTPListener {
 
                 // show info...
                 StatusFrame.INSTANCE.showGUI(false);
-                MainFrame.CORE.showFrame(true);
+                MainFrame.INSTANCE.showFrame(true);
                 Logger.error("User is not allowed to use this pack! (ERROR " + action.getResponseCode() + ")");
                 JOptionPane.showMessageDialog(null, "You are not allowed to use this pack!", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
@@ -78,7 +78,7 @@ public class GetSinglePackListener extends HTTPListener {
         // show info...
         Logger.error("Could not download pack! (ERROR " + action.getResponseCode() + ")");
         StatusFrame.INSTANCE.showGUI(false);
-        MainFrame.CORE.showFrame(true);
+        MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not download pack...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
     }
 

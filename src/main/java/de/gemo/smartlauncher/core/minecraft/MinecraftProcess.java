@@ -1,4 +1,4 @@
-package de.gemo.smartlauncher.core;
+package de.gemo.smartlauncher.core.minecraft;
 
 public class MinecraftProcess {
     private final Process process;
