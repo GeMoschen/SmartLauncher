@@ -1,16 +1,25 @@
 package de.gemo.smartlauncher.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.JOptionPane;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
-import de.gemo.smartlauncher.actions.GetSinglePackAction;
 import de.gemo.smartlauncher.core.minecraft.MinecraftProcess;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
@@ -65,21 +74,134 @@ public class Launcher {
 
         // start...
         AuthData authData = Main.authData;
-        File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
         GetSinglePackListener listener = new GetSinglePackListener();
-        if (!packJson.exists()) {
-            Logger.info("pack.json is missing... downloading pack...");
-            Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), listener));
-            Main.startThread();
-        } else {
-            if (!listener.handlePackJson(packJson)) {
-                Logger.info("pack.json is invalid... redownloading pack...");
-                Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), listener));
+        File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
+        File packFile = new File(VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
+        String packURL = (VARS.URL.PACKSERVER + "packs/" + this.pack.getPackName() + "/" + this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
+        if (!packJson.exists() || !packFile.exists()) {
+            if (!packFile.exists()) {
+                StatusFrame.INSTANCE.setText("downloading packfile...");
+                Logger.info("Packfile is missing... downloading pack...");
+                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
                 Main.startThread();
             } else {
-                Logger.fine("pack.json is valid...");
+                if (!this.extractPack()) {
+                    StatusFrame.INSTANCE.setText("downloading packfile...");
+                    Logger.info("Packfile is invalid... downloading pack...");
+                    Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                    Main.startThread();
+                } else {
+                    Logger.fine("Packfile is valid...");
+                    Launcher.INSTANCE.launchPack();
+                }
+            }
+        } else {
+            if (!this.handlePackJson(packJson)) {
+                Logger.info("pack.json is invalid... redownloading pack...");
+                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                Main.startThread();
+            } else {
+                Logger.fine("Pack is valid...");
                 Launcher.INSTANCE.launchPack();
             }
+        }
+    }
+
+    public boolean extractPack() {
+        try {
+            StatusFrame.INSTANCE.setText("extracting packfile...");
+            InputStream inputStream = new FileInputStream(new File(VARS.DIR.PACKS + "/" + this.pack.getPackName(), this.pack.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"));
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStream));
+            ZipEntry entry;
+
+            String dir = VARS.DIR.PROFILES + "/" + Main.authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/";
+            while ((entry = zis.getNextEntry()) != null) {
+                String entryName = entry.getName().replaceFirst(this.pack.getPackName() + "/", "");
+                if (entry.isDirectory()) {
+                    entryName = entryName.replaceAll(this.pack.getPackName() + "/minecraft/", "");
+                    File file = new File(dir + entryName);
+                    file.mkdirs();
+                    continue;
+                }
+                entryName = entryName.replaceAll(this.pack.getPackName() + "/minecraft/", "");
+
+                int size;
+                byte[] buffer = new byte[2048];
+
+                entryName = (dir + entryName).replaceAll("/", "\\\\");
+                File file = new File(entryName);
+
+                FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
+
+                while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+                    bos.write(buffer, 0, size);
+                }
+                bos.flush();
+                bos.close();
+                if (entryName.endsWith("pack.json")) {
+                    if (!this.handlePackJson(entryName)) {
+                        return false;
+                    }
+                }
+            }
+            zis.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean handlePackJson(String fileName) {
+        return this.handlePackJson(new File(fileName));
+    }
+
+    private boolean handlePackJson(File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            JsonObject json = JsonObject.readFrom(reader);
+
+            // get minecraft-version
+            JsonValue jsonValue = json.get("id");
+            if (jsonValue == null) {
+                return false;
+            }
+            Launcher.getPackInfo().setGameVersion(jsonValue.asString().replaceAll("\"", ""));
+
+            // override mainClass...
+            jsonValue = json.get("mainClass");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMainClass(jsonValue.toString());
+            }
+
+            // override mcArguments
+            jsonValue = json.get("minecraftArguments");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMCArguments(jsonValue.toString());
+            }
+
+            // get libraries...
+            jsonValue = json.get("libraries");
+            if (jsonValue != null) {
+                JsonArray jsonLib = jsonValue.asArray();
+                JsonObject singleLibrary;
+                for (JsonValue value : jsonLib.values()) {
+                    singleLibrary = value.asObject();
+                    Library lib = new Library(singleLibrary);
+
+                    // add the library, if it should be added...
+                    if (lib.addLibrary()) {
+                        lib.addLibraryToDownloads();
+                    }
+                }
+            }
+
+            // close stream
+            reader.close();
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

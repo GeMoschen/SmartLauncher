@@ -186,7 +186,7 @@ public class MCJsonDownloadListener extends HTTPListener {
 
         StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft... 4", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

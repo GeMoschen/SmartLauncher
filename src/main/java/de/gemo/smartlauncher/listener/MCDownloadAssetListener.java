@@ -23,8 +23,8 @@ public class MCDownloadAssetListener extends HTTPListener {
 
     @Override
     public void onStart(HTTPAction action) {
-        StatusFrame.INSTANCE.setText("downloading '" + this.asset.getPath() + "'...");
         StatusFrame.INSTANCE.setProgress(0);
+        StatusFrame.INSTANCE.setText("downloading '" + this.asset.getPath() + "'...");
     }
 
     @Override

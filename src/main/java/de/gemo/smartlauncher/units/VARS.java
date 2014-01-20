@@ -20,6 +20,7 @@ public class VARS {
         public final static String LIBRARIES = APPDATA + "libraries";
         public final static String PROFILES = APPDATA + "profiles";
         public final static String VERSIONS = APPDATA + "versions";
+        public final static String PACKS = APPDATA + "packs";
     }
 
     public final static class URL {

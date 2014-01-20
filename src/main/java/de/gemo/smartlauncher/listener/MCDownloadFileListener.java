@@ -21,8 +21,8 @@ public class MCDownloadFileListener extends HTTPListener {
 
     @Override
     public void onStart(HTTPAction action) {
-        StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
         StatusFrame.INSTANCE.setProgress(0);
+        StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
     }
 
     @Override
