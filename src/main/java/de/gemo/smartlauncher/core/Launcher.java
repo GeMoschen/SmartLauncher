@@ -189,11 +189,12 @@ public class Launcher {
 
                 Logger.fine("Starting Minecraft...");
                 Logger.fine(fullCMD);
-                Process process = new ProcessBuilder(cmd).directory(this.packInfo.getGameDir()).redirectErrorStream(false).start();
+                Process process = new ProcessBuilder(cmd).directory(this.packInfo.getGameDir()).redirectErrorStream(true).start();
                 if (process != null) {
                     Logger.fine("Minecraft started!");
+                    new MinecraftProcess(process);
                     StatusFrame.INSTANCE.showGUI(false);
-                    new Thread(new GameWatcher(process)).start();
+                    // new Thread(new GameWatcher(process)).start();
                 } else {
                     // clear all...
                     Launcher.onError();
