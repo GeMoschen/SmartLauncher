@@ -174,7 +174,8 @@ public class Launcher {
         cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
 
         // some extra-info
-        cmd.add("-Xmx2G");
+        cmd.add("-Xmx1G");
+        cmd.add("-XX:PermSize=128m");
 
         // append nativesdir...
         cmd.add("-Djava.library.path=\"" + Launcher.INSTANCE.packInfo.getNativesDir().getAbsolutePath() + "\"");
