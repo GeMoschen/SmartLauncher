@@ -24,7 +24,7 @@ public class MinecraftMonitorThread extends Thread {
         try {
             while ((line = buf.readLine()) != null) {
                 Logger.client(line);
-                if (firstLine) {
+                if (firstLine && line.contains("LWJGL Version")) {
                     StatusFrame.INSTANCE.showFrame(false);
                     firstLine = false;
                 }

@@ -76,7 +76,7 @@ public class GetSinglePackListener extends HTTPListener {
         Launcher.onError();
 
         // show info...
-        Logger.error("Could not download pack! (ERROR " + action.getResponseCode() + ")");
+        Logger.error("Could not download pack! (Statuscode: " + action.getResponseCode() + ")");
         StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not download pack...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);

@@ -127,9 +127,6 @@ public class Launcher {
             StatusFrame.INSTANCE.showFrame(true);
             Logger.fine("Preparing launch...");
 
-            // clear http...
-            Main.clearHTTPs();
-
             // extract libraries...
             StatusFrame.INSTANCE.setText("Extracting libraries...");
             Logger.fine("Extracting libraries...");
@@ -205,6 +202,7 @@ public class Launcher {
                 }
 
                 Logger.fine("Starting Minecraft...");
+                StatusFrame.INSTANCE.setText("Starting Minecraft...");
                 Logger.fine(fullCMD);
                 Process process = new ProcessBuilder(cmd).directory(this.packInfo.getGameDir()).redirectErrorStream(true).start();
                 if (process != null) {
