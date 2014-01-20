@@ -69,7 +69,7 @@ public class LoginListener extends HTTPListener {
 
     public void onError(HTTPAction action) {
         if (StatusFrame.INSTANCE != null) {
-            StatusFrame.INSTANCE.showGUI(false);
+            StatusFrame.INSTANCE.showFrame(false);
         }
 
         GETResponse response = (GETResponse) this.getWorker().getResponse();

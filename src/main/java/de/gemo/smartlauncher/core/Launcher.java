@@ -19,6 +19,7 @@ import de.gemo.smartlauncher.internet.Worker;
 import de.gemo.smartlauncher.listener.GetSinglePackListener;
 import de.gemo.smartlauncher.listener.MCJsonDownloadListener;
 import de.gemo.smartlauncher.units.Asset;
+import de.gemo.smartlauncher.units.AuthData;
 import de.gemo.smartlauncher.units.DownloadInfo;
 import de.gemo.smartlauncher.units.Library;
 import de.gemo.smartlauncher.units.Pack;
@@ -57,16 +58,32 @@ public class Launcher {
         Library.clearLibrarys();
         Main.clearHTTPs();
 
-        // start...
-        Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), new GetSinglePackListener()));
-        Main.startThread();
-        StatusFrame.INSTANCE.showGUI(true);
+        // SOME INFO
+        StatusFrame.INSTANCE.showFrame(true);
         MainFrame.INSTANCE.showFrame(false);
+        StatusFrame.INSTANCE.setText("Preparing launch...");
+
+        // start...
+        AuthData authData = Main.authData;
+        File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
+        GetSinglePackListener listener = new GetSinglePackListener();
+        if (!packJson.exists()) {
+            Logger.info("pack.json is missing... downloading pack...");
+            Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), listener));
+            Main.startThread();
+        } else {
+            if (!listener.handlePackJson(packJson)) {
+                Logger.info("pack.json is invalid... redownloading pack...");
+                Main.appendWorker(new Worker(new GetSinglePackAction(this.pack, this.packInfo.getPackVersion()), listener));
+                Main.startThread();
+            } else {
+                Logger.fine("pack.json is valid...");
+                Launcher.INSTANCE.launchPack();
+            }
+        }
     }
 
     public void launchPack() {
-        StatusFrame.INSTANCE.setText("Preparing download...");
-        StatusFrame.INSTANCE.showGUI(true);
         File versionFile = new File(VARS.DIR.VERSIONS + "/" + this.packInfo.getGameVersion() + "/", this.packInfo.getGameVersion() + ".json");
         MCJsonDownloadListener listener = new MCJsonDownloadListener(this.packInfo.getGameVersion() + ".json");
         if (!versionFile.exists()) {
@@ -85,7 +102,6 @@ public class Launcher {
                     Logger.fine("All needed files are downloaded...");
                     Launcher.startGame();
                 }
-
             } catch (Exception e) {
                 Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, packInfo), VARS.DIR.VERSIONS + "/" + this.packInfo.getGameVersion() + "/", this.packInfo.getGameVersion() + ".json"), listener));
                 Main.startThread();
@@ -108,6 +124,7 @@ public class Launcher {
     public static void startGame() throws IOException {
         if (!INSTANCE.error) {
             // some output...
+            StatusFrame.INSTANCE.showFrame(true);
             Logger.fine("Preparing launch...");
 
             // clear http...
@@ -123,12 +140,11 @@ public class Launcher {
             Logger.fine("Reconstructing assets...");
             if (INSTANCE.packInfo.reconstructAssets()) {
                 // ... and finally start minecraft
-                StatusFrame.INSTANCE.setText("Starting game...");
                 INSTANCE.launchGame();
             }
         } else {
             // show GUIs
-            StatusFrame.INSTANCE.showGUI(false);
+            StatusFrame.INSTANCE.showFrame(false);
             MainFrame.INSTANCE.showFrame(true);
         }
     }
@@ -194,14 +210,12 @@ public class Launcher {
                 if (process != null) {
                     Logger.fine("Minecraft started!");
                     new MinecraftProcess(process);
-                    StatusFrame.INSTANCE.showGUI(false);
-                    // new Thread(new GameWatcher(process)).start();
                 } else {
                     // clear all...
                     Launcher.onError();
 
                     // show GUIs
-                    StatusFrame.INSTANCE.showGUI(false);
+                    StatusFrame.INSTANCE.showFrame(false);
                     MainFrame.INSTANCE.showFrame(true);
 
                     // some output...
@@ -210,7 +224,7 @@ public class Launcher {
                 }
             } else {
                 // show GUIs
-                StatusFrame.INSTANCE.showGUI(false);
+                StatusFrame.INSTANCE.showFrame(false);
                 MainFrame.INSTANCE.showFrame(true);
             }
         } catch (IOException e) {

@@ -1,5 +1,7 @@
 package de.gemo.smartlauncher.frames;
 
+import java.awt.Frame;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -56,8 +58,11 @@ public class StatusFrame {
         this.label.setText(text);
     }
 
-    public void showGUI(boolean show) {
+    public void showFrame(boolean show) {
         this.frame.setVisible(show);
+        if (show) {
+            this.frame.setState(Frame.NORMAL);
+        }
     }
 
     public void setProgress(int percent) {

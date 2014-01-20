@@ -34,7 +34,7 @@ import de.gemo.smartlauncher.units.VARS;
 public class GetSinglePackListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
-        Logger.fine(action.getShortDescription());
+        Logger.info(action.getShortDescription());
     }
 
     public void onFinish(HTTPAction action) {
@@ -56,7 +56,7 @@ public class GetSinglePackListener extends HTTPListener {
                 Launcher.onError();
 
                 // show info...
-                StatusFrame.INSTANCE.showGUI(false);
+                StatusFrame.INSTANCE.showFrame(false);
                 MainFrame.INSTANCE.showFrame(true);
                 Logger.error("User is not allowed to use this pack! (ERROR " + action.getResponseCode() + ")");
                 JOptionPane.showMessageDialog(null, "You are not allowed to use this pack!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -77,7 +77,7 @@ public class GetSinglePackListener extends HTTPListener {
 
         // show info...
         Logger.error("Could not download pack! (ERROR " + action.getResponseCode() + ")");
-        StatusFrame.INSTANCE.showGUI(false);
+        StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not download pack...\n\nExiting....", "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -113,7 +113,9 @@ public class GetSinglePackListener extends HTTPListener {
             bos.flush();
             bos.close();
             if (entryName.endsWith("pack.json")) {
-                this.handlePackJson(entryName);
+                if (!this.handlePackJson(entryName)) {
+                    throw new Exception("pack.json is invalid!");
+                }
             }
         }
 
@@ -121,41 +123,56 @@ public class GetSinglePackListener extends HTTPListener {
 
     }
 
-    private void handlePackJson(String fileName) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName))));
-        JsonObject json = JsonObject.readFrom(reader);
-        Launcher.getPackInfo().setGameVersion(json.get("id").asString().replaceAll("\"", ""));
+    private boolean handlePackJson(String fileName) {
+        return this.handlePackJson(new File(fileName));
+    }
 
-        // override mainClass...
-        JsonValue jsonValue = json.get("mainClass");
-        if (jsonValue != null) {
-            Launcher.getPackInfo().overrideMainClass(jsonValue.toString());
-        }
+    public boolean handlePackJson(File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            JsonObject json = JsonObject.readFrom(reader);
 
-        // override mcArguments
-        jsonValue = json.get("minecraftArguments");
-        if (jsonValue != null) {
-            Launcher.getPackInfo().overrideMCArguments(jsonValue.toString());
-        }
+            // get minecraft-version
+            JsonValue jsonValue = json.get("id");
+            if (jsonValue == null) {
+                return false;
+            }
+            Launcher.getPackInfo().setGameVersion(jsonValue.asString().replaceAll("\"", ""));
 
-        // get libraries...
-        jsonValue = json.get("libraries");
-        if (jsonValue != null) {
-            JsonArray jsonLib = jsonValue.asArray();
-            JsonObject singleLibrary;
-            for (JsonValue value : jsonLib.values()) {
-                singleLibrary = value.asObject();
-                Library lib = new Library(singleLibrary);
+            // override mainClass...
+            jsonValue = json.get("mainClass");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMainClass(jsonValue.toString());
+            }
 
-                // add the library, if it should be added...
-                if (lib.addLibrary()) {
-                    lib.addLibraryToDownloads();
+            // override mcArguments
+            jsonValue = json.get("minecraftArguments");
+            if (jsonValue != null) {
+                Launcher.getPackInfo().overrideMCArguments(jsonValue.toString());
+            }
+
+            // get libraries...
+            jsonValue = json.get("libraries");
+            if (jsonValue != null) {
+                JsonArray jsonLib = jsonValue.asArray();
+                JsonObject singleLibrary;
+                for (JsonValue value : jsonLib.values()) {
+                    singleLibrary = value.asObject();
+                    Library lib = new Library(singleLibrary);
+
+                    // add the library, if it should be added...
+                    if (lib.addLibrary()) {
+                        lib.addLibraryToDownloads();
+                    }
                 }
             }
-        }
 
-        // close stream
-        reader.close();
+            // close stream
+            reader.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

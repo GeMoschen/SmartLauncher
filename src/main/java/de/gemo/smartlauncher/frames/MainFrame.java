@@ -123,7 +123,6 @@ public class MainFrame {
                 if (e.getClickCount() == 2) {
                     // START MODPACK
                     if (selectedLabel != null && selectedLabel.isEnabled()) {
-                        showFrame(false);
                         new Launcher(selectedPack, versionBox.getItemAt(versionBox.getSelectedIndex()).toString());
                     }
                 }

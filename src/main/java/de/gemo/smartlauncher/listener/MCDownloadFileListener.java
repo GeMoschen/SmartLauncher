@@ -47,9 +47,9 @@ public class MCDownloadFileListener extends HTTPListener {
         // clear...
         Launcher.onError();
 
-        StatusFrame.INSTANCE.showGUI(false);
+        StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
-        JOptionPane.showMessageDialog(null, "Could not start Minecraft... 1", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Could not start Minecraft...", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override

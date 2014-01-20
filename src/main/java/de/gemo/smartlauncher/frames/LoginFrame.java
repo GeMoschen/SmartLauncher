@@ -97,7 +97,7 @@ public class LoginFrame {
         if (StatusFrame.INSTANCE == null) {
             new StatusFrame();
         } else {
-            StatusFrame.INSTANCE.showGUI(true);
+            StatusFrame.INSTANCE.showFrame(true);
         }
         Main.authData.resetData();
         this.enableLoginGUI(false);

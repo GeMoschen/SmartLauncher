@@ -37,9 +37,8 @@ public class MCJsonDownloadListener extends HTTPListener {
 
     @Override
     public void onStart(HTTPAction action) {
-        StatusFrame.INSTANCE.showGUI(true);
-        StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
         StatusFrame.INSTANCE.setProgress(0);
+        StatusFrame.INSTANCE.setText("downloading '" + this.fileName + "'...");
     }
 
     /**
@@ -113,10 +112,11 @@ public class MCJsonDownloadListener extends HTTPListener {
             return (downloadInfo.isDownloadAssetJSON() || downloadInfo.isDownloadMCJar() || downloadInfo.getLibraryCount() > 0);
         } catch (Exception e) {
             e.printStackTrace();
+
             // reset all...
             Launcher.onError();
 
-            StatusFrame.INSTANCE.showGUI(false);
+            StatusFrame.INSTANCE.showFrame(false);
             MainFrame.INSTANCE.showFrame(true);
             JOptionPane.showMessageDialog(null, "Could not start Minecraft... 3", "Error", JOptionPane.ERROR_MESSAGE);
             return true;
@@ -184,7 +184,7 @@ public class MCJsonDownloadListener extends HTTPListener {
         // clear...
         Launcher.onError();
 
-        StatusFrame.INSTANCE.showGUI(false);
+        StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not start Minecraft... 4", "Error", JOptionPane.ERROR_MESSAGE);
     }

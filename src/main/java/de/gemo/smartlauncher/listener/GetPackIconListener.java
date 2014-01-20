@@ -52,7 +52,7 @@ public class GetPackIconListener extends HTTPListener {
                 LoginFrame.INSTANCE.showGUI(false);
             }
             if (StatusFrame.INSTANCE != null) {
-                StatusFrame.INSTANCE.showGUI(false);
+                StatusFrame.INSTANCE.showFrame(false);
             }
         }
 

@@ -5,6 +5,10 @@ public class Logger {
         print("[ FINE ]", message);
     }
 
+    public static void info(String message) {
+        print("[ INFO ]", message);
+    }
+
     public static void error(String message) {
         System.err.println("[ ERROR ] " + message);
     }

@@ -26,9 +26,8 @@ public class MCJsonAssetsListener extends HTTPListener {
 
     @Override
     public void onStart(HTTPAction action) {
-        StatusFrame.INSTANCE.showGUI(true);
-        StatusFrame.INSTANCE.setText("downloading assets...");
         StatusFrame.INSTANCE.setProgress(0);
+        StatusFrame.INSTANCE.setText("downloading assets...");
     }
 
     @Override
@@ -70,12 +69,6 @@ public class MCJsonAssetsListener extends HTTPListener {
                     Main.startThread();
                 } else {
                     Logger.fine("No need to download assets...");
-                    // if (Library.getLibraryDownloadList().size() < 1) {
-                    // Logger.info("All needed libraries downloaded...");
-                    // Launcher.startGame();
-                    // StatusFrame.INSTANCE.showGUI(false);
-                    // MainFrame.CORE.showFrame(true);
-                    // }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -92,7 +85,7 @@ public class MCJsonAssetsListener extends HTTPListener {
         // clear...
         Launcher.onError();
 
-        StatusFrame.INSTANCE.showGUI(false);
+        StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
         JOptionPane.showMessageDialog(null, "Could not start Minecraft... 5", "Error", JOptionPane.ERROR_MESSAGE);
     }
