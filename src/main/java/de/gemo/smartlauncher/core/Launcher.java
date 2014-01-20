@@ -116,19 +116,26 @@ public class Launcher {
 
             String dir = VARS.DIR.PROFILES + "/" + Main.authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packInfo.getPackVersion() + "/";
             while ((entry = zis.getNextEntry()) != null) {
-                String entryName = entry.getName().replaceFirst(this.pack.getPackName() + "/", "");
+                // modify entryName...
+                String entryName = entry.getName();
+                entryName = entryName.replaceFirst(this.pack.getPackName() + "/", "");
+                entryName = entryName.replaceFirst("minecraft/", "");
+
+                // create dirs...
                 if (entry.isDirectory()) {
-                    entryName = entryName.replaceAll(this.pack.getPackName() + "/minecraft/", "");
+                    if (entryName.length() < 1) {
+                        continue;
+                    }
                     File file = new File(dir + entryName);
                     file.mkdirs();
                     continue;
                 }
-                entryName = entryName.replaceAll(this.pack.getPackName() + "/minecraft/", "");
-
-                int size;
-                byte[] buffer = new byte[2048];
 
                 entryName = (dir + entryName).replaceAll("/", "\\\\");
+
+                // extract file...
+                int size;
+                byte[] buffer = new byte[2048];
                 File file = new File(entryName);
 
                 FileOutputStream fos = new FileOutputStream(file);

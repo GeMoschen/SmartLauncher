@@ -1,5 +1,6 @@
 package de.gemo.smartlauncher.units;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,8 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import javax.imageio.ImageIO;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -18,10 +17,18 @@ public class Pack {
     public static BufferedImage NO_ICON = null;
 
     static {
-        try {
-            NO_ICON = ImageIO.read(new File("noIcon.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        // try {
+        NO_ICON = new BufferedImage(MainFrame.IMAGE_DIM, MainFrame.IMAGE_DIM, BufferedImage.TYPE_INT_RGB);
+        final int frame = 3;
+        Color frameColor = new Color(89, 175, 200);
+        for (int x = 0; x < MainFrame.IMAGE_DIM; x++) {
+            for (int y = 0; y < MainFrame.IMAGE_DIM; y++) {
+                if (x < frame || x > MainFrame.IMAGE_DIM - frame - 1 || y < frame || y > MainFrame.IMAGE_DIM - frame - 1 || x == y || MainFrame.IMAGE_DIM - x - 1 == y) {
+                    NO_ICON.setRGB(x, y, frameColor.getRGB());
+                } else {
+                    NO_ICON.setRGB(x, y, Color.white.getRGB());
+                }
+            }
         }
     }
 
