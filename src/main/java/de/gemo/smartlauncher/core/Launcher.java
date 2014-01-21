@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.core.minecraft.MinecraftProcess;
+import de.gemo.smartlauncher.frames.LogFrame;
 import de.gemo.smartlauncher.frames.MainFrame;
 import de.gemo.smartlauncher.frames.StatusFrame;
 import de.gemo.smartlauncher.internet.DownloadAction;
@@ -46,6 +47,7 @@ public class Launcher {
         this.downloadInfo = new DownloadInfo();
         packVersion = packVersion.replaceAll(" - recommended", "").trim();
         this.packInfo = new PackInfo(packVersion, pack);
+        LogFrame.create();
         this.launch();
     }
 
