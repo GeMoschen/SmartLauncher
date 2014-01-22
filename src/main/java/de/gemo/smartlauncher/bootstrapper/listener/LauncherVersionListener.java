@@ -46,25 +46,36 @@ public class LauncherVersionListener extends HTTPListener {
                     Logger.fine("Launcher is up to date! (Version " + version + ")");
                     Bootstrapper.launchLauncher();
                 } else {
-                    Logger.fine("Launcher needs an update (installed: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + " , updated: " + version + ")!");
+                    Logger.info("New version found! (installed: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + " , updated: " + version + ")");
 
-                    // delete old launcher...
-                    File oldLauncher = new File(VARS.DIR.APPDATA, "Launcher.jar");
-                    if (oldLauncher.exists()) {
-                        oldLauncher.delete();
-                    }
+                    boolean oldVersionFound = (Bootstrapper.INSTANCE.getInstalledLauncherVersion() != -1);
 
-                    JsonArray neededFiles = json.get("files").asArray();
-                    if (neededFiles != null) {
-                        List<JsonValue> files = neededFiles.values();
-                        for (JsonValue value : files) {
-                            String fileName = value.asString();
-                            ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES_LAUNCHER + fileName, VARS.DIR.APPDATA, fileName), new LauncherFileListener()));
-                            Bootstrapper.setFilesToDownload(Bootstrapper.getFilesToDownload() + 1);
+                    if (!oldVersionFound || JOptionPane.showConfirmDialog(null, "Update found! Install now?\ninstalled: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + "\nnew: " + version, "Update found!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                        // delete old launcher...
+                        File oldLauncher = new File(VARS.DIR.APPDATA, "Launcher.jar");
+                        if (oldLauncher.exists()) {
+                            oldLauncher.delete();
                         }
-                        ThreadHolder.startThread();
+
+                        JsonArray neededFiles = json.get("files").asArray();
+                        if (neededFiles != null) {
+                            List<JsonValue> files = neededFiles.values();
+                            for (JsonValue value : files) {
+                                String fileName = value.asString();
+                                ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES_LAUNCHER + fileName, VARS.DIR.APPDATA, fileName), new LauncherFileListener()));
+                                Bootstrapper.setFilesToDownload(Bootstrapper.getFilesToDownload() + 1);
+                            }
+                            ThreadHolder.startThread();
+                        } else {
+                            this.onError(action);
+                        }
                     } else {
-                        this.onError(action);
+                        if (Bootstrapper.INSTANCE.getInstalledLauncherVersion() == -1) {
+                            JOptionPane.showMessageDialog(null, "No launcher found!\nExiting...", "Ooops...", JOptionPane.ERROR_MESSAGE);
+                            System.exit(0);
+                        } else {
+                            Bootstrapper.launchLauncher();
+                        }
                     }
                 }
             } catch (Exception e) {
