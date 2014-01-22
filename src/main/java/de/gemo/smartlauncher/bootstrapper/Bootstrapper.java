@@ -35,9 +35,7 @@ public class Bootstrapper {
         StatusFrame.INSTANCE.showFrame(true);
         StatusFrame.INSTANCE.setText("waiting...");
 
-        Logger.info("Appending worker...");
         ThreadHolder.appendWorker(new Worker(new ByteAction(VARS.URL.VERSION_LAUNCHER), new LauncherVersionListener()));
-        Logger.info("Starting check...");
         ThreadHolder.startThread();
     }
 
