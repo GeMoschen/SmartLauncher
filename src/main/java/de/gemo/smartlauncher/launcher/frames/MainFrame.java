@@ -51,6 +51,8 @@ public class MainFrame {
             }
         });
 
+        this.setIcon();
+
         // versionbox
         this.versionBox = new JComboBox<String>();
         this.versionBox.setEnabled(false);
@@ -67,6 +69,11 @@ public class MainFrame {
 
         // resize components
         this.repositionGUI();
+    }
+
+    private void setIcon() {
+        ImageIcon imgicon = new ImageIcon("icon.png");
+        this.frame.setIconImage(imgicon.getImage());
     }
 
     private void updateVersions(Pack pack) {

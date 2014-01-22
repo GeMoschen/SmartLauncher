@@ -3,6 +3,7 @@ package de.gemo.smartlauncher.launcher.frames;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,8 +39,14 @@ public class LoginFrame {
         this.frame.setResizable(false);
         this.frame.setUndecorated(true);
 
+        this.setIcon();
         this.createGUI();
         this.repositionGUI();
+    }
+
+    private void setIcon() {
+        ImageIcon imgicon = new ImageIcon("icon.png");
+        this.frame.setIconImage(imgicon.getImage());
     }
 
     private void repositionGUI() {
