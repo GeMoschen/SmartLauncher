@@ -43,10 +43,10 @@ public class LauncherVersionListener extends HTTPListener {
                 JsonObject json = JsonObject.readFrom(responseString);
                 int version = json.get("version").asInt();
                 if (version <= Bootstrapper.INSTANCE.getInstalledLauncherVersion()) {
-                    Logger.fine("Launcher is up to date!");
+                    Logger.fine("Launcher is up to date! (Version " + version + ")");
                     Bootstrapper.launchLauncher();
                 } else {
-                    Logger.fine("Launcher needs an update!");
+                    Logger.fine("Launcher needs an update (installed: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + " , updated: " + version + ")!");
 
                     // delete old launcher...
                     File oldLauncher = new File(VARS.DIR.APPDATA, "Launcher.jar");
