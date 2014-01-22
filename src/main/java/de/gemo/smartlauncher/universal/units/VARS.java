@@ -20,7 +20,6 @@ public class VARS {
 
     public final static class DIR {
         public final static String APPDATA = System.getenv("AppData") + "\\.SmartLauncher\\";
-        public final static String BOOTSTRAPPER = APPDATA + "bootstrapper";
         public final static String ASSETS = APPDATA + "assets";
         public final static String LIBRARIES = APPDATA + "libraries";
         public final static String PROFILES = APPDATA + "profiles";
@@ -31,9 +30,7 @@ public class VARS {
     public final static class URL {
         public final static String PACKSERVER = "http://www.djgemo.de/launcher/";
         public final static String FILES_LAUNCHER = PACKSERVER + "launcher/";
-        public final static String FILES_BOOTSTRAPPER = PACKSERVER + "bootstrapper/";
         public final static String VERSION_LAUNCHER = FILES_LAUNCHER + "version.json";
-        public final static String VERSION_BOOTSTRAPPER = FILES_BOOTSTRAPPER + "version.json";
 
         public final static class MinecraftLogin {
             private static final String LOGINSERVER = "https://authserver.mojang.com/";
