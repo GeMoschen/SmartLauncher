@@ -10,7 +10,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import de.gemo.smartlauncher.launcher.actions.LoginAction;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.Launcher;
+import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.listener.LoginListener;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.Worker;
@@ -100,10 +101,10 @@ public class LoginFrame {
         } else {
             StatusFrame.INSTANCE.showFrame(true);
         }
-        Main.authData.resetData();
+        Launcher.authData.resetData();
         this.enableLoginGUI(false);
-        Main.appendWorker(new Worker(new LoginAction(this.txt_mcUserName.getText(), new String(this.txt_mcPassword.getPassword())), new LoginListener()));
-        Main.startThread();
+        ThreadHolder.appendWorker(new Worker(new LoginAction(this.txt_mcUserName.getText(), new String(this.txt_mcPassword.getPassword())), new LoginListener()));
+        ThreadHolder.startThread();
     }
 
     public void enableLoginGUI(boolean enabled) {

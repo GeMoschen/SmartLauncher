@@ -11,7 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import com.eclipsesource.json.JsonObject;
 
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.GETResponse;
@@ -64,7 +64,7 @@ public class LoginAction implements HTTPAction {
         json.add("username", this.userName);
         json.add("password", this.password);
 
-        AuthData loginData = Main.authData;
+        AuthData loginData = Launcher.authData;
         loginData.resetData();
         this.userName = null;
         this.password = null;

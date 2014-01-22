@@ -1,12 +1,9 @@
 package de.gemo.smartlauncher.bootstrapper;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -26,13 +23,11 @@ public class Bootstrapper {
     public static Bootstrapper INSTANCE;
     private static int filesToDownload = 0;
 
-    private final int version = 1;
     private int installedLauncherVersion = -1;
 
     public Bootstrapper() {
         Bootstrapper.INSTANCE = this;
         this.readLauncherVersion();
-        this.createVersionFile();
 
         new StatusFrame();
         StatusFrame.INSTANCE.showFrame(true);
@@ -61,38 +56,6 @@ public class Bootstrapper {
 
     public int getInstalledLauncherVersion() {
         return installedLauncherVersion;
-    }
-
-    private void createVersionFile() {
-        File versionFile = new File(VARS.DIR.BOOTSTRAPPER, "version.json");
-
-        // create dir
-        versionFile.mkdirs();
-
-        // delete old file
-        if (versionFile.exists()) {
-            versionFile.delete();
-        }
-
-        try {
-            // create json
-            JsonObject json = new JsonObject();
-            json.add("version", this.version);
-
-            String path = Bootstrapper.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            String decodedPath = URLDecoder.decode(path, "UTF-8");
-            if (decodedPath.startsWith("/")) {
-                decodedPath = decodedPath.replaceFirst("/", "");
-            }
-            json.add("path", decodedPath);
-
-            // write json to file
-            BufferedWriter writer = new BufferedWriter(new FileWriter(versionFile));
-            json.writeTo(writer);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void launchLauncher() {

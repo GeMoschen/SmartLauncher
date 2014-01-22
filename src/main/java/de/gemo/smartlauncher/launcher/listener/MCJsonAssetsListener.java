@@ -10,7 +10,7 @@ import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.units.Asset;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.DownloadAction;
@@ -53,11 +53,11 @@ public class MCJsonAssetsListener extends HTTPListener {
                 for (Asset asset : assetsToDL) {
                     if (!asset.isFileValid()) {
                         Asset.incrementAssetsToLoad();
-                        Main.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.ASSETS + asset.getURL(), VARS.DIR.ASSETS + "/objects/" + asset.getHashFolder(), asset.getHash()), new MCDownloadAssetListener(asset)));
+                        ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.URL.FILES.ASSETS + asset.getURL(), VARS.DIR.ASSETS + "/objects/" + asset.getHashFolder(), asset.getHash()), new MCDownloadAssetListener(asset)));
                     }
                 }
                 if (Asset.getAssetsToLoad() > 0) {
-                    Main.startThread();
+                    ThreadHolder.startThread();
                 } else {
                     Logger.fine("No need to download assets...");
                 }

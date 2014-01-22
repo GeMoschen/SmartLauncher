@@ -13,7 +13,7 @@ import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Asset;
 import de.gemo.smartlauncher.launcher.units.DownloadInfo;
@@ -85,7 +85,7 @@ public class MCJsonDownloadListener extends HTTPListener {
             File assets = new File(VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json");
             downloadInfo.setDownloadAssetJSON(!assets.exists() || !this.verifyAssets(assets));
             if (downloadInfo.isDownloadAssetJSON()) {
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
+                ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_ASSETS, "version", assetsFile), VARS.DIR.ASSETS + "/indexes/", assetsFile + ".json"), new MCJsonAssetsListener()));
             } else {
                 Logger.fine("Assets are fine...");
             }
@@ -94,7 +94,7 @@ public class MCJsonDownloadListener extends HTTPListener {
             downloadInfo.setLibraryCount(Library.getLibraryDownloadList().size());
             if (downloadInfo.getLibraryCount() > 0) {
                 for (Library library : Library.getLibraryDownloadList()) {
-                    Main.appendWorker(new Worker(new DownloadAction(library.getURL() + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
+                    ThreadHolder.appendWorker(new Worker(new DownloadAction(library.getURL() + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
                 }
             } else {
                 Logger.fine("Libraries are fine...");
@@ -104,7 +104,7 @@ public class MCJsonDownloadListener extends HTTPListener {
             File mcJar = new File(VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar");
             downloadInfo.setDownloadMCJar(!mcJar.exists());
             if (!mcJar.exists()) {
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, GameLauncher.getPackInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
+                ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.FILES.MC_JAR, GameLauncher.getPackInfo()), VARS.DIR.VERSIONS + "/" + this.version + "/", this.version + ".jar"), new MCDownloadFileListener(this.version + ".jar")));
             } else {
                 Logger.fine("Minecraft-JAR is fine...");
             }
@@ -165,7 +165,7 @@ public class MCJsonDownloadListener extends HTTPListener {
                 // if there are files to download...
                 if (this.readJson(json)) {
                     // ... start the download
-                    Main.startThread();
+                    ThreadHolder.startThread();
                 } else {
                     Logger.fine("All needed files are downloaded...");
                     if (GameLauncher.prepareGame()) {

@@ -77,7 +77,7 @@ public class GameLauncher {
         StatusFrame.INSTANCE.setText("Preparing launch...");
 
         // start...
-        AuthData authData = Main.authData;
+        AuthData authData = Launcher.authData;
         GetSinglePackListener listener = new GetSinglePackListener();
         File packJson = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.packInfo.getPackName() + "/" + this.packInfo.getPackVersion() + "/pack.json");
         File packFile = new File(VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip");
@@ -86,15 +86,15 @@ public class GameLauncher {
             if (!packFile.exists()) {
                 StatusFrame.INSTANCE.setText("downloading packfile...");
                 Logger.info("Packfile is missing...");
-                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
-                Main.startThread();
+                ThreadHolder.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                ThreadHolder.startThread();
                 return false;
             } else {
                 if (!this.packInfo.getPack().extractPack()) {
                     StatusFrame.INSTANCE.setText("downloading packfile...");
                     Logger.info("Packfile is invalid...");
-                    Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
-                    Main.startThread();
+                    ThreadHolder.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                    ThreadHolder.startThread();
                     return false;
                 } else {
                     Logger.fine("Packfile is valid...");
@@ -104,8 +104,8 @@ public class GameLauncher {
         } else {
             if (!this.packInfo.getPack().handlePackJson(packJson)) {
                 Logger.info("pack.json is invalid... redownloading pack...");
-                Main.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
-                Main.startThread();
+                ThreadHolder.appendWorker(new Worker(new DownloadAction(packURL, VARS.DIR.PACKS + "/" + this.packInfo.getPackName(), this.packInfo.getPackName() + "-" + this.packInfo.getPackVersion() + ".zip"), listener));
+                ThreadHolder.startThread();
                 return false;
             } else {
                 Logger.fine("Pack is valid...");
@@ -118,8 +118,8 @@ public class GameLauncher {
         File versionFile = new File(VARS.DIR.VERSIONS + "/" + GameLauncher.INSTANCE.packInfo.getGameVersion() + "/", GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json");
         MCJsonDownloadListener listener = new MCJsonDownloadListener(GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json");
         if (!versionFile.exists()) {
-            Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, GameLauncher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + GameLauncher.INSTANCE.packInfo.getGameVersion() + "/", GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
-            Main.startThread();
+            ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, GameLauncher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + GameLauncher.INSTANCE.packInfo.getGameVersion() + "/", GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
+            ThreadHolder.startThread();
             return false;
         } else {
             try {
@@ -129,15 +129,15 @@ public class GameLauncher {
 
                 if (listener.readJson(json)) {
                     Logger.info("Some files are missing...");
-                    Main.startThread();
+                    ThreadHolder.startThread();
                     return false;
                 } else {
                     Logger.fine("All needed files are downloaded...");
                     return true;
                 }
             } catch (Exception e) {
-                Main.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, GameLauncher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + GameLauncher.INSTANCE.packInfo.getGameVersion() + "/", GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
-                Main.startThread();
+                ThreadHolder.appendWorker(new Worker(new DownloadAction(VARS.getString(VARS.URL.JSON.MC_VERSIONS, GameLauncher.INSTANCE.packInfo), VARS.DIR.VERSIONS + "/" + GameLauncher.INSTANCE.packInfo.getGameVersion() + "/", GameLauncher.INSTANCE.packInfo.getGameVersion() + ".json"), listener));
+                ThreadHolder.startThread();
                 return false;
             }
         }
@@ -281,7 +281,7 @@ public class GameLauncher {
         // clear all...
         Asset.reset();
         Library.clearLibrarys();
-        Main.clearHTTPs();
+        ThreadHolder.clearHTTPs();
     }
 
     public static void onError() {

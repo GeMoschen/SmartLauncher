@@ -11,7 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import com.eclipsesource.json.JsonObject;
 
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.GETResponse;
@@ -59,12 +59,12 @@ public class RefreshAction implements HTTPAction {
         json.add("accessToken", this.loginData.getAccessToken());
         json.add("clientToken", this.loginData.getClientToken());
 
-        // NOT USED FOR NOW
+        // TODO: NOT USED FOR NOW
         // JsonObject profile = new JsonObject();
         // profile.add("id", this.profileID); profile.add("name",
         // this.userName); json.add("selectedProfile", profile);
 
-        AuthData loginData = Main.authData;
+        AuthData loginData = Launcher.authData;
         loginData.resetData();
 
         writer.writeBytes(json.toString());

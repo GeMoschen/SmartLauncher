@@ -26,7 +26,7 @@ public class GetPacksAction implements HTTPAction {
         this.shortDescription = "getting packs...";
         this.packsURL = (VARS.URL.PACKSERVER + "packs.json");
         // this.packsURL = (VARS.URL.JSON.PACKSERVER + "packs.php?userName=" +
-        // Main.authData.getMCUserName());
+        // ThreadHolder.authData.getMCUserName());
     }
 
     public HTTPResponse doAction() throws IOException {

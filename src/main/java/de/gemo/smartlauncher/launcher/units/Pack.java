@@ -22,7 +22,7 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.units.VARS;
@@ -149,7 +149,7 @@ public class Pack {
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(inputStream));
             ZipEntry entry;
 
-            String dir = VARS.DIR.PROFILES + "/" + Main.authData.getMCUserName() + "/" + this.getPackName() + "/" + GameLauncher.getPackInfo().getPackVersion() + "/";
+            String dir = VARS.DIR.PROFILES + "/" + Launcher.authData.getMCUserName() + "/" + this.getPackName() + "/" + GameLauncher.getPackInfo().getPackVersion() + "/";
             while ((entry = zis.getNextEntry()) != null) {
                 // modify entryName...
                 String entryName = entry.getName();

@@ -9,7 +9,7 @@ import com.eclipsesource.json.JsonValue;
 import de.gemo.smartlauncher.launcher.actions.GetPackIconAction;
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.launcher.units.PackVersion;
@@ -59,7 +59,7 @@ public class GetPacksListener extends HTTPListener {
                             }
                         }
                     }
-                    Main.appendWorker(new Worker(new GetPackIconAction(pack), new GetPackIconListener(pack)));
+                    ThreadHolder.appendWorker(new Worker(new GetPackIconAction(pack), new GetPackIconListener(pack)));
                     Pack.loadedPacks.put(packName, pack);
                     Logger.fine("loaded pack '" + pack.getPackName() + "' with " + pack.getVersions().size() + " versions...");
                 } catch (Exception e) {
@@ -70,7 +70,7 @@ public class GetPacksListener extends HTTPListener {
             Logger.fine("Packs fetched...");
 
             // get icons...
-            Main.startThread();
+            ThreadHolder.startThread();
 
         } catch (Exception e) {
             e.printStackTrace();

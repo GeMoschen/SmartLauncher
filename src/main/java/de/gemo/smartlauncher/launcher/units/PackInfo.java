@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
 
 import com.eclipsesource.json.JsonObject;
 
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class PackInfo {
@@ -38,7 +38,7 @@ public class PackInfo {
     }
 
     private void createDirs() {
-        AuthData authData = Main.authData;
+        AuthData authData = Launcher.authData;
 
         // create gamedir
         this.gameDir = new File(VARS.DIR.PROFILES + "/" + authData.getMCUserName() + "/" + this.pack.getPackName() + "/" + this.packVersion + "/");
@@ -123,7 +123,7 @@ public class PackInfo {
         ArrayList<String> args = new ArrayList<String>();
         String[] split = this.mcArguments.split(" ");
 
-        AuthData authData = Main.authData;
+        AuthData authData = Launcher.authData;
         for (int index = 0; index < split.length; index += 2) {
             String current = split[index];
             String next = split[index + 1];

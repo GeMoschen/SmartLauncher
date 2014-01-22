@@ -8,8 +8,9 @@ import javax.swing.JOptionPane;
 import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.launcher.actions.GetPacksAction;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.Main;
+import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.frames.LoginFrame;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
@@ -26,7 +27,7 @@ public class LoginListener extends HTTPListener {
 
     public void onFinish(HTTPAction action) {
         GETResponse response = (GETResponse) this.getWorker().getResponse();
-        AuthData loginData = Main.authData;
+        AuthData loginData = Launcher.authData;
         try {
             if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 // LOGIN OK
@@ -56,8 +57,8 @@ public class LoginListener extends HTTPListener {
                 Logger.fine("Logged in as '" + loginData.getMCUserName() + "'...");
 
                 // get packs...
-                Main.appendWorker(new Worker(new GetPacksAction(), new GetPacksListener()));
-                Main.startThread();
+                ThreadHolder.appendWorker(new Worker(new GetPacksAction(), new GetPacksListener()));
+                ThreadHolder.startThread();
             } else {
                 this.onError(action);
             }
