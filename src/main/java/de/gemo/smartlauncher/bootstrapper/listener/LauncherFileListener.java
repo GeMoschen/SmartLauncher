@@ -1,5 +1,6 @@
 package de.gemo.smartlauncher.bootstrapper.listener;
 
+import java.io.File;
 import java.net.HttpURLConnection;
 
 import javax.swing.JOptionPane;
@@ -7,6 +8,7 @@ import javax.swing.JOptionPane;
 import de.gemo.smartlauncher.bootstrapper.Bootstrapper;
 import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
+import de.gemo.smartlauncher.universal.internet.DownloadAction;
 import de.gemo.smartlauncher.universal.internet.DownloadResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
@@ -14,6 +16,13 @@ import de.gemo.smartlauncher.universal.internet.HTTPListener;
 public class LauncherFileListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
+        // delete old file
+        DownloadAction thisAction = (DownloadAction) action;
+        File file = new File(thisAction.getSaveDir(), thisAction.getFileName());
+        if (file.exists()) {
+            file.delete();
+        }
+        // some status...
         Logger.info("Downloading '" + action.getShortDescription() + "'...");
         StatusFrame.INSTANCE.setText("Downloading '" + action.getShortDescription() + "'...");
         StatusFrame.INSTANCE.setProgress(0);

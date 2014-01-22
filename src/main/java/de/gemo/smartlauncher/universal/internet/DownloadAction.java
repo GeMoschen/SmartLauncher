@@ -92,6 +92,14 @@ public class DownloadAction implements HTTPAction, Listenerable {
         }
     }
 
+    public String getSaveDir() {
+        return saveDir;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
     public long getLoadedLength() {
         return loadedLength;
     }
