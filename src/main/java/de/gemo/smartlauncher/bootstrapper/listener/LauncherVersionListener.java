@@ -42,6 +42,15 @@ public class LauncherVersionListener extends HTTPListener {
                 String responseString = new String(response.getResponse());
                 JsonObject json = JsonObject.readFrom(responseString);
                 int version = json.get("version").asInt();
+                boolean forceUpdate = false;
+                JsonValue forceJson = json.get("forceUpdate");
+                if (forceJson != null) {
+                    try {
+                        forceUpdate = forceJson.asBoolean();
+                    } catch (Exception e) {
+                        forceUpdate = false;
+                    }
+                }
                 if (version <= Bootstrapper.INSTANCE.getInstalledLauncherVersion()) {
                     Logger.fine("Launcher is up to date! (Version " + version + ")");
                     Bootstrapper.launchLauncher();
@@ -50,7 +59,7 @@ public class LauncherVersionListener extends HTTPListener {
 
                     boolean oldVersionFound = (Bootstrapper.INSTANCE.getInstalledLauncherVersion() != -1);
 
-                    if (!oldVersionFound || JOptionPane.showConfirmDialog(null, "Update found! Install now?\ninstalled: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + "\nnew: " + version, "Update found!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    if (forceUpdate || !oldVersionFound || JOptionPane.showConfirmDialog(null, "Update found! Install now?\ninstalled: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + "\nnew: " + version, "Update found!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         // delete old launcher...
                         File oldLauncher = new File(VARS.DIR.APPDATA, "Launcher.jar");
                         if (oldLauncher.exists()) {
