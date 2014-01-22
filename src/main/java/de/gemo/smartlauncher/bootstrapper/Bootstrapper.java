@@ -12,10 +12,11 @@ import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.bootstrapper.listener.LauncherVersionListener;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.ThreadHolder;
+import de.gemo.smartlauncher.universal.frames.LogFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.ByteAction;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class Bootstrapper {
@@ -30,6 +31,7 @@ public class Bootstrapper {
         this.readLauncherVersion();
 
         new StatusFrame();
+        LogFrame.create();
         StatusFrame.INSTANCE.showFrame(true);
         StatusFrame.INSTANCE.setText("waiting...");
 

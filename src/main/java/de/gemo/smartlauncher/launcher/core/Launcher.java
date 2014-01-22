@@ -15,10 +15,11 @@ import de.gemo.smartlauncher.launcher.listener.LoginListener;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class Launcher {
-    private final int version = 3;
+    private final int version = 4;
 
     public static AuthData authData = new AuthData();
 

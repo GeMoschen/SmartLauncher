@@ -11,10 +11,10 @@ import javax.swing.JTextField;
 
 import de.gemo.smartlauncher.launcher.actions.LoginAction;
 import de.gemo.smartlauncher.launcher.core.Launcher;
-import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.launcher.listener.LoginListener;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.ThreadHolder;
 
 public class LoginFrame {
 

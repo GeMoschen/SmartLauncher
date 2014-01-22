@@ -12,13 +12,13 @@ import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.bootstrapper.Bootstrapper;
 import de.gemo.smartlauncher.launcher.core.Logger;
-import de.gemo.smartlauncher.launcher.core.ThreadHolder;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.ByteResponse;
 import de.gemo.smartlauncher.universal.internet.DownloadAction;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class LauncherVersionListener extends HTTPListener {
