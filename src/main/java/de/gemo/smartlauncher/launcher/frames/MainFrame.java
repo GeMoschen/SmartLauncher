@@ -1,6 +1,7 @@
 package de.gemo.smartlauncher.launcher.frames;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -11,6 +12,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputListener;
 
@@ -27,6 +31,9 @@ public class MainFrame {
     // GUI
     private JFrame frame;
     private JComboBox<String> versionBox;
+    private JPanel packPanel;
+    private JScrollPane packScrollPane;
+
     private ArrayList<JLabel> packLabels = new ArrayList<JLabel>();
 
     private Pack selectedPack = null;
@@ -58,6 +65,14 @@ public class MainFrame {
         this.versionBox.setEnabled(false);
         this.versionBox.setLocation(10, 10);
         this.frame.add(this.versionBox);
+
+        this.packPanel = new JPanel();
+        this.packPanel.setLayout(null);
+        this.packScrollPane = new JScrollPane(this.packPanel);
+        this.packScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.packScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        this.packScrollPane.setViewportView(this.packPanel);
+        this.frame.add(this.packScrollPane);
 
         // add loaded packs...
         for (Pack pack : Pack.loadedPacks.values()) {
@@ -95,12 +110,20 @@ public class MainFrame {
 
     private void repositionGUI() {
         int width = this.frame.getWidth() - this.frame.getInsets().right - this.frame.getInsets().left;
+        int height = this.frame.getHeight() - this.frame.getInsets().top - this.frame.getInsets().bottom;
         int index = 0;
         this.versionBox.setLocation(10, 10);
         this.versionBox.setSize(width - 20, 25);
+
+        this.packScrollPane.setLocation(10, 45);
+        this.packScrollPane.setSize(width - 20, height - 55);
+        this.packPanel.setLocation(0, 0);
+        this.packPanel.setPreferredSize(new Dimension(width - 20, this.packLabels.size() * (IMAGE_DIM + 2)));
+        this.packScrollPane.setPreferredSize(new Dimension(width, this.packLabels.size() * (IMAGE_DIM + 2)));
+
         for (JLabel iconLabel : this.packLabels) {
             iconLabel.setSize(width - 20, IMAGE_DIM);
-            iconLabel.setLocation(10, 45 + index * (IMAGE_DIM + 2));
+            iconLabel.setLocation(0, index * (IMAGE_DIM + 2));
             index++;
         }
     }
@@ -112,19 +135,13 @@ public class MainFrame {
     private void addPack(final Pack pack) {
         final JLabel iconLabel = new JLabel(new ImageIcon(pack.getIcon()), SwingConstants.LEFT);
         iconLabel.addMouseListener(new MouseInputListener() {
-
             // @formatter:off
             @Override public void mouseMoved(MouseEvent e) {}
-
             @Override public void mouseDragged(MouseEvent e) {}
-
-            @Override public void mouseReleased(MouseEvent e) {}         
-            
+            @Override public void mouseReleased(MouseEvent e) {}  
             @Override public void mouseExited(MouseEvent e) {}
-
             @Override public void mouseEntered(MouseEvent e) {}
             // @formatter:on
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -152,10 +169,9 @@ public class MainFrame {
         });
         iconLabel.setText(pack.getPackName());
         this.packLabels.add(iconLabel);
-        this.frame.add(iconLabel);
-        this.frame.revalidate();
-        this.frame.repaint();
-
+        this.packPanel.add(iconLabel);
+        this.packPanel.revalidate();
+        this.packPanel.repaint();
     }
 
     public void showFrame(boolean show) {
