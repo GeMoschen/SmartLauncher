@@ -26,7 +26,7 @@ public class MainFrame {
 
     public static MainFrame INSTANCE;
 
-    public static int IMAGE_DIM = 32;
+    public static int IMAGE_DIM = 48;
 
     // GUI
     private JFrame frame;

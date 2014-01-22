@@ -36,7 +36,7 @@ public class GetPackIconAction implements HTTPAction {
         StatusFrame.INSTANCE.setText(this.getShortDescription());
 
         // create URL
-        String URL = (VARS.URL.PACKSERVER + "packs/" + this.pack.getPackName() + "/icon.png");
+        String URL = (VARS.URL.PACKSERVER + "packs/" + this.pack.getPackName() + "/" + this.pack.getPackName() + ".png");
         URL url = new URL(URL);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 

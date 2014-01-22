@@ -28,7 +28,8 @@ public class VARS {
     }
 
     public final static class URL {
-        public final static String PACKSERVER = "http://www.djgemo.de/launcher/";
+
+        public final static String PACKSERVER = "http://www.minestar.de/wiki/";
         public final static String FILES_LAUNCHER = PACKSERVER + "launcher/";
         public final static String VERSION_LAUNCHER = FILES_LAUNCHER + "version.json";
 

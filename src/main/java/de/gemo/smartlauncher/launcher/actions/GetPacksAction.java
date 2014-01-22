@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.GETResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
@@ -24,9 +25,7 @@ public class GetPacksAction implements HTTPAction {
 
     public GetPacksAction() {
         this.shortDescription = "getting packs...";
-        this.packsURL = (VARS.URL.PACKSERVER + "packs.json");
-        // this.packsURL = (VARS.URL.JSON.PACKSERVER + "packs.php?userName=" +
-        // ThreadHolder.authData.getMCUserName());
+        this.packsURL = VARS.URL.PACKSERVER + "packs.php?player=" + Launcher.authData.getMCUserName();
     }
 
     public HTTPResponse doAction() throws IOException {
