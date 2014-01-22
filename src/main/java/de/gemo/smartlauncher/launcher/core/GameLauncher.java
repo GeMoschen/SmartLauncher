@@ -24,6 +24,7 @@ import de.gemo.smartlauncher.universal.frames.LogFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.DownloadAction;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 

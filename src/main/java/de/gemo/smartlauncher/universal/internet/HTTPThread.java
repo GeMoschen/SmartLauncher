@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.gemo.smartlauncher.launcher.core.Logger;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class HTTPThread implements Runnable {
 

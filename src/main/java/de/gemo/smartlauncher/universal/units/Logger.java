@@ -1,4 +1,4 @@
-package de.gemo.smartlauncher.launcher.core;
+package de.gemo.smartlauncher.universal.units;
 
 import de.gemo.smartlauncher.universal.frames.LogFrame;
 

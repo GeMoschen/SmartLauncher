@@ -6,12 +6,12 @@ import java.net.HttpURLConnection;
 import javax.swing.JOptionPane;
 
 import de.gemo.smartlauncher.bootstrapper.Bootstrapper;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.DownloadAction;
 import de.gemo.smartlauncher.universal.internet.DownloadResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class LauncherFileListener extends HTTPListener {
 

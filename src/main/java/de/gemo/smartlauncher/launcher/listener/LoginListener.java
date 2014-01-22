@@ -9,7 +9,6 @@ import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.launcher.actions.GetPacksAction;
 import de.gemo.smartlauncher.launcher.core.Launcher;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.frames.LoginFrame;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
@@ -17,6 +16,7 @@ import de.gemo.smartlauncher.universal.internet.GETResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
 
 public class LoginListener extends HTTPListener {

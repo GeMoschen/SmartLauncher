@@ -11,11 +11,11 @@ import javax.swing.JOptionPane;
 import com.eclipsesource.json.JsonObject;
 
 import de.gemo.smartlauncher.bootstrapper.listener.LauncherVersionListener;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.universal.frames.LogFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.ByteAction;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
@@ -35,7 +35,9 @@ public class Bootstrapper {
         StatusFrame.INSTANCE.showFrame(true);
         StatusFrame.INSTANCE.setText("waiting...");
 
+        Logger.info("Appending worker...");
         ThreadHolder.appendWorker(new Worker(new ByteAction(VARS.URL.VERSION_LAUNCHER), new LauncherVersionListener()));
+        Logger.info("Starting check...");
         ThreadHolder.startThread();
     }
 
@@ -53,6 +55,7 @@ public class Bootstrapper {
             reader.close();
         } catch (Exception e) {
             this.installedLauncherVersion = -1;
+            e.printStackTrace();
         }
     }
 

@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class MinecraftMonitorThread extends Thread {
 

@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import javax.imageio.ImageIO;
 
 import de.gemo.smartlauncher.launcher.actions.GetPackIconAction;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.frames.LoginFrame;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Pack;
@@ -16,6 +15,7 @@ import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.ByteResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class GetPackIconListener extends HTTPListener {
 

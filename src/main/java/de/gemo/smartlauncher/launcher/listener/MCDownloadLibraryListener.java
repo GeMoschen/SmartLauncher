@@ -3,12 +3,12 @@ package de.gemo.smartlauncher.launcher.listener;
 import java.net.HttpURLConnection;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.units.DownloadInfo;
 import de.gemo.smartlauncher.launcher.units.Library;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class MCDownloadLibraryListener extends HTTPListener {
 

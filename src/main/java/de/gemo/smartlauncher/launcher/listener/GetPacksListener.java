@@ -8,7 +8,6 @@ import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.launcher.actions.GetPackIconAction;
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.launcher.units.PackVersion;
@@ -16,6 +15,7 @@ import de.gemo.smartlauncher.universal.internet.GETResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
 import de.gemo.smartlauncher.universal.internet.Worker;
+import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
 
 public class GetPacksListener extends HTTPListener {

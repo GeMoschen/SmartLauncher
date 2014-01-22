@@ -1,8 +1,8 @@
 package de.gemo.smartlauncher.launcher.core.minecraft;
 
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class MinecraftListener {
 

@@ -5,11 +5,11 @@ import java.net.HttpURLConnection;
 import javax.swing.JOptionPane;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
-import de.gemo.smartlauncher.launcher.core.Logger;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
+import de.gemo.smartlauncher.universal.units.Logger;
 
 public class GetSinglePackListener extends HTTPListener {
 
