@@ -43,13 +43,14 @@ public class Bootstrapper {
     }
 
     private void readLauncherVersion() {
-        File file = new File(VARS.DIR.APPDATA, "version.json");
-        if (!file.exists()) {
+        File versionFile = new File(VARS.DIR.APPDATA, "version.json");
+        File launcherFile = new File(VARS.DIR.APPDATA, "Launcher.jar");
+        if (!versionFile.exists() || !launcherFile.exists()) {
             this.installedLauncherVersion = -1;
             return;
         }
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new FileReader(versionFile));
             JsonObject json = JsonObject.readFrom(reader);
             this.installedLauncherVersion = json.get("version").asInt();
             reader.close();
