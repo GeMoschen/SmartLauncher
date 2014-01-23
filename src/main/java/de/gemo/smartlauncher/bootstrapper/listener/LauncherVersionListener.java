@@ -52,14 +52,14 @@ public class LauncherVersionListener extends HTTPListener {
                     }
                 }
                 if (version <= Bootstrapper.INSTANCE.getInstalledLauncherVersion()) {
-                    Logger.fine("Launcher is up to date! (Version " + version + ")");
+                    Logger.fine("Launcher is up to date! (Version " + VARS.getVersionString(version) + ")");
                     Bootstrapper.launchLauncher();
                 } else {
-                    Logger.info("New version found! (installed: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + " , updated: " + version + ")");
+                    Logger.info("New version found! (current: " + VARS.getVersionString(Bootstrapper.INSTANCE.getInstalledLauncherVersion()) + " , new: " + VARS.getVersionString(version) + ")");
 
                     boolean oldVersionFound = (Bootstrapper.INSTANCE.getInstalledLauncherVersion() != -1);
 
-                    if (forceUpdate || !oldVersionFound || JOptionPane.showConfirmDialog(null, "Update found! Install now?\ninstalled: " + Bootstrapper.INSTANCE.getInstalledLauncherVersion() + "\nnew: " + version, "Update found!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    if (forceUpdate || !oldVersionFound || JOptionPane.showConfirmDialog(null, "Update found! Install now?\ncurrent: " + VARS.getVersionString(Bootstrapper.INSTANCE.getInstalledLauncherVersion()) + "\nnew: " + VARS.getVersionString(version), "Update found!", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                         // delete old launcher...
                         File oldLauncher = new File(VARS.DIR.APPDATA, "Launcher.jar");
                         if (oldLauncher.exists()) {

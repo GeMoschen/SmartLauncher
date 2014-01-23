@@ -4,6 +4,14 @@ import de.gemo.smartlauncher.launcher.units.PackInfo;
 
 public class VARS {
 
+    public static String getVersionString(int version) {
+        int major = (int) (version / 1000);
+        int sub = (int) ((version - major * 1000) / 100);
+        int subSub = (int) ((version - major * 1000 - sub * 100) / 10);
+        int subSubSub = (version - major * 1000 - sub * 100 - subSub * 10);
+        return major + "." + sub + "." + subSub + "." + subSubSub;
+    }
+
     public static String getString(String string, PackInfo gameInfo) {
         String replaced = string;
         replaced = string.replace("${version}", gameInfo.getGameVersion());

@@ -22,6 +22,7 @@ import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.launcher.units.PackVersion;
+import de.gemo.smartlauncher.universal.units.VARS;
 
 public class MainFrame {
 
@@ -42,7 +43,7 @@ public class MainFrame {
 
     public MainFrame(String title, int width, int height) {
         MainFrame.INSTANCE = this;
-        this.frame = new JFrame(title + " (v" + this.getVersionString() + ")");
+        this.frame = new JFrame(title + " (v" + VARS.getVersionString(Launcher.getVersion()) + ")");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setBounds(0, 0, width, height);
         this.frame.setLayout(null);
@@ -85,14 +86,6 @@ public class MainFrame {
 
         // resize components
         this.repositionGUI();
-    }
-
-    private String getVersionString() {
-        int version = Launcher.getVersion();
-        int major = (int) (version / 100);
-        int sub = (int) ((version - major * 100) / 10);
-        int subSub = version - major * 100 - sub * 10;
-        return major + "." + sub + "." + subSub;
     }
 
     private void setIcon() {
