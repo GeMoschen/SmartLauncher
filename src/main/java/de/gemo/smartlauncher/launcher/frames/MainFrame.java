@@ -42,7 +42,7 @@ public class MainFrame {
 
     public MainFrame(String title, int width, int height) {
         MainFrame.INSTANCE = this;
-        this.frame = new JFrame(title + " (v" + Launcher.INSTANCE.getVersion() + ")");
+        this.frame = new JFrame(title + " (v" + this.getVersionString() + ")");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setBounds(0, 0, width, height);
         this.frame.setLayout(null);
@@ -85,6 +85,14 @@ public class MainFrame {
 
         // resize components
         this.repositionGUI();
+    }
+
+    private String getVersionString() {
+        int version = Launcher.getVersion();
+        int major = (int) (version / 100);
+        int sub = (int) ((version - major * 100) / 10);
+        int subSub = version - major * 100 - sub * 10;
+        return major + "." + sub + "." + subSub;
     }
 
     private void setIcon() {
