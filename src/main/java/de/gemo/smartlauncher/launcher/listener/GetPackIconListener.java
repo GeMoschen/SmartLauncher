@@ -7,7 +7,6 @@ import java.net.HttpURLConnection;
 
 import javax.imageio.ImageIO;
 
-import de.gemo.smartlauncher.launcher.actions.GetPackIconAction;
 import de.gemo.smartlauncher.launcher.frames.LoginFrame;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Pack;
@@ -31,12 +30,11 @@ public class GetPackIconListener extends HTTPListener {
     }
 
     public void onFinish(HTTPAction action) {
-        GetPackIconAction thisAction = (GetPackIconAction) action;
         if (action.getResponseCode() == HttpURLConnection.HTTP_OK) {
             ByteResponse response = (ByteResponse) this.getWorker().getResponse();
             try {
                 BufferedImage image = ImageIO.read(new ByteArrayInputStream(response.getResponse()));
-                thisAction.getPack().setIcon(image);
+                this.pack.setIcon(image);
             } catch (IOException e) {
                 e.printStackTrace();
             }

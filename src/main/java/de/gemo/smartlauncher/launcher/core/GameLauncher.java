@@ -287,7 +287,9 @@ public class GameLauncher {
     }
 
     public static void onError() {
-        GameLauncher.clearAll();
-        INSTANCE.error = true;
+        if (INSTANCE != null) {
+            GameLauncher.clearAll();
+            INSTANCE.error = true;
+        }
     }
 }

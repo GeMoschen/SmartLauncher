@@ -7,17 +7,18 @@ import javax.swing.JOptionPane;
 
 import com.eclipsesource.json.JsonObject;
 
-import de.gemo.smartlauncher.launcher.actions.GetPacksAction;
 import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.frames.LoginFrame;
 import de.gemo.smartlauncher.launcher.units.AuthData;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
+import de.gemo.smartlauncher.universal.internet.GETAction;
 import de.gemo.smartlauncher.universal.internet.GETResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
 import de.gemo.smartlauncher.universal.internet.Worker;
 import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
+import de.gemo.smartlauncher.universal.units.VARS;
 
 public class LoginListener extends HTTPListener {
 
@@ -57,7 +58,7 @@ public class LoginListener extends HTTPListener {
                 Logger.fine("Logged in as '" + loginData.getMCUserName() + "'...");
 
                 // get packs...
-                ThreadHolder.appendWorker(new Worker(new GetPacksAction(), new GetPacksListener()));
+                ThreadHolder.appendWorker(new Worker(new GETAction("getting packs...", VARS.URL.PACKSERVER + "packs.php?player=" + Launcher.authData.getMCUserName()), new GetPacksListener()));
                 ThreadHolder.startThread();
             } else {
                 this.onError(action);

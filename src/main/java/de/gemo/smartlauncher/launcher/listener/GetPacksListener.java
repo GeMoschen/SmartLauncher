@@ -2,31 +2,34 @@ package de.gemo.smartlauncher.launcher.listener;
 
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
-import de.gemo.smartlauncher.launcher.actions.GetPackIconAction;
-import de.gemo.smartlauncher.launcher.core.GameLauncher;
-import de.gemo.smartlauncher.launcher.frames.MainFrame;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.launcher.units.PackVersion;
+import de.gemo.smartlauncher.universal.frames.StatusFrame;
+import de.gemo.smartlauncher.universal.internet.ByteAction;
 import de.gemo.smartlauncher.universal.internet.GETResponse;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
 import de.gemo.smartlauncher.universal.internet.Worker;
 import de.gemo.smartlauncher.universal.units.Logger;
 import de.gemo.smartlauncher.universal.units.ThreadHolder;
+import de.gemo.smartlauncher.universal.units.VARS;
 
 public class GetPacksListener extends HTTPListener {
 
     public void onStart(HTTPAction action) {
         Logger.info("getting packs...");
+        StatusFrame.INSTANCE.setText("getting packs...");
     }
 
     public void onFinish(HTTPAction action) {
-        GETResponse response = (GETResponse) this.getWorker().getResponse();
         try {
+            GETResponse response = (GETResponse) this.getWorker().getResponse();
             JsonObject object = JsonObject.readFrom(response.getResponse().toString());
             JsonArray json = object.get("packs").asArray();
 
@@ -59,7 +62,7 @@ public class GetPacksListener extends HTTPListener {
                             }
                         }
                     }
-                    ThreadHolder.appendWorker(new Worker(new GetPackIconAction(pack), new GetPackIconListener(pack)));
+                    ThreadHolder.appendWorker(new Worker(new ByteAction(VARS.URL.PACKSERVER + "packs/" + pack.getPackName() + "/" + pack.getPackName() + ".png"), new GetPackIconListener(pack)));
                     Pack.loadedPacks.put(packName, pack);
                     Logger.fine("loaded pack '" + pack.getPackName() + "' with " + pack.getVersions().size() + " versions...");
                 } catch (Exception e) {
@@ -81,8 +84,8 @@ public class GetPacksListener extends HTTPListener {
 
     @Override
     public void onError(HTTPAction action) {
-        GameLauncher.handleException(new Exception("Could not fetch available packs...\nExiting..."));
-        MainFrame.INSTANCE.exit(0);
+        JOptionPane.showMessageDialog(null, "Could not fetch available packs...\nExiting...", "Error", JOptionPane.ERROR_MESSAGE);
+        System.exit(0);
     }
 
     @Override
