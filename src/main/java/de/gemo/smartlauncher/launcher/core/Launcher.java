@@ -19,11 +19,16 @@ import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class Launcher {
-    private final int version = 9;
+    public static Launcher INSTANCE;
+
+    private final int version = 10;
 
     public static AuthData authData = new AuthData();
 
     public Launcher() {
+        Launcher.INSTANCE = this;
+
+        // set look and feel...
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception e) {
@@ -35,6 +40,10 @@ public class Launcher {
 
         // refresh login...
         this.refreshLogin();
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     private void refreshLogin() {

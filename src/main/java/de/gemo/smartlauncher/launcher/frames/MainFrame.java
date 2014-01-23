@@ -19,6 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputListener;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
+import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.launcher.units.PackVersion;
 
@@ -41,7 +42,7 @@ public class MainFrame {
 
     public MainFrame(String title, int width, int height) {
         MainFrame.INSTANCE = this;
-        this.frame = new JFrame(title);
+        this.frame = new JFrame(title + " (v" + Launcher.INSTANCE.getVersion() + ")");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setBounds(0, 0, width, height);
         this.frame.setLayout(null);
