@@ -88,6 +88,7 @@ public class LauncherVersionListener extends HTTPListener {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 this.onError(action);
             }
         } else {

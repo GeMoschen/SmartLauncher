@@ -38,7 +38,8 @@ public class VARS {
     public final static class URL {
 
         public final static String PACKSERVER = "http://www.minestar.de/wiki/";
-        public final static String FILES_LAUNCHER = PACKSERVER + "launcher/";
+        public final static String FILESERVER = "http://www.djgemo.de/";
+        public final static String FILES_LAUNCHER = FILESERVER + "launcher/";
         public final static String VERSION_LAUNCHER = FILES_LAUNCHER + "version.json";
 
         public final static class MinecraftLogin {
