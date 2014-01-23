@@ -99,6 +99,8 @@ public class LauncherVersionListener extends HTTPListener {
     @Override
     public void onError(HTTPAction action) {
         Logger.error("Error verifying launcherversion...");
+        Logger.info("URL: " + action.getCompleteURL());
+        Logger.info("Code: " + action.getResponseCode());
         JOptionPane.showMessageDialog(null, "Error verifying version...\nAttempting to launch old version...", "Ooops...", JOptionPane.ERROR_MESSAGE);
         if (Bootstrapper.INSTANCE.getInstalledLauncherVersion() == -1) {
             JOptionPane.showMessageDialog(null, "No launcher found!\nExiting...", "Ooops...", JOptionPane.ERROR_MESSAGE);
