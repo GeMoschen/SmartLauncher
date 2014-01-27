@@ -124,48 +124,30 @@ public class PackInfo {
         String[] split = this.mcArguments.split(" ");
 
         AuthData authData = Launcher.authData;
-        for (int index = 0; index < split.length; index += 2) {
-            String current = split[index];
-            String next = split[index + 1];
-            if (current.equalsIgnoreCase("--username")) {
-                next = authData.getMCUserName();
-            }
-            if (current.equalsIgnoreCase("--version")) {
-                next = this.gameVersion;
-            }
-            if (current.equalsIgnoreCase("--gameDir")) {
-                next = "\"" + this.gameDir.getAbsolutePath() + "\"";
-            }
-            if (current.equalsIgnoreCase("--assetsDir")) {
-                next = "\"" + this.assetsDir.getAbsolutePath();
-                if (this.isAssetsVirtual()) {
-                    next += "/virtual/legacy";
-                }
-                next += "\"";
-            }
-            if (current.equalsIgnoreCase("--assetIndex")) {
-                next = this.getAssetVersion();
-            }
-            if (current.equalsIgnoreCase("--uuid")) {
-                next = authData.getProfileID();
-            }
-            if (current.equalsIgnoreCase("--accessToken")) {
-                next = authData.getAccessToken();
-            }
-            if (current.equalsIgnoreCase("--session")) {
-                next = authData.getAccessToken() + ":" + authData.getProfileID();
-            }
-            if (current.equalsIgnoreCase("--userProperties")) {
-                next = "{}";
-            }
-            if (current.equalsIgnoreCase("--userType")) {
-                next = "mojang";
-            }
-
-            if (next.length() > 0) {
+        String assetDir = "\"" + this.assetsDir.getAbsolutePath();
+        if (this.isAssetsVirtual()) {
+            assetDir += "/virtual/legacy";
+        }
+        assetDir += "\"";
+        try {
+            for (int index = 0; index < split.length; index++) {
+                String current = split[index];
+                current = current.replaceAll("\\$", "#####");
+                current = current.replace("#####{auth_player_name}", authData.getMCUserName());
+                current = current.replace("#####{version_name}", this.gameVersion);
+                current = current.replace("#####{game_directory}", "\"" + this.gameDir.getAbsolutePath() + "\"");
+                current = current.replace("#####{assets_root}", assetDir);
+                current = current.replace("#####{game_assets}", assetDir);
+                current = current.replace("#####{assets_index_name}", this.getAssetVersion());
+                current = current.replace("#####{auth_uuid}", authData.getProfileID());
+                current = current.replace("#####{auth_access_token}", authData.getAccessToken());
+                current = current.replace("#####{auth_session}", "token:" + authData.getAccessToken() + ":" + authData.getProfileID());
+                current = current.replace("#####{user_properties}", "{}");
+                current = current.replace("#####{user_type}", "mojang");
                 args.add(current);
-                args.add(next.replaceAll("/", "\\\\"));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return args;
     }

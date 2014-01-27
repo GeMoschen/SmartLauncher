@@ -19,7 +19,7 @@ import de.gemo.smartlauncher.universal.units.ThreadHolder;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class Launcher {
-    private static final int version = 11;
+    private static final int version = 12;
 
     public static AuthData authData = new AuthData();
 
