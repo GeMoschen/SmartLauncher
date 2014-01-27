@@ -129,26 +129,26 @@ public class PackInfo {
             assetDir += "/virtual/legacy";
         }
         assetDir += "\"";
-        try {
-            for (int index = 0; index < split.length; index++) {
-                String current = split[index];
-                current = current.replaceAll("\\$", "#####");
-                current = current.replace("#####{auth_player_name}", authData.getMCUserName());
-                current = current.replace("#####{version_name}", this.gameVersion);
-                current = current.replace("#####{game_directory}", "\"" + this.gameDir.getAbsolutePath() + "\"");
-                current = current.replace("#####{assets_root}", assetDir);
-                current = current.replace("#####{game_assets}", assetDir);
-                current = current.replace("#####{assets_index_name}", this.getAssetVersion());
-                current = current.replace("#####{auth_uuid}", authData.getProfileID());
-                current = current.replace("#####{auth_access_token}", authData.getAccessToken());
-                current = current.replace("#####{auth_session}", "token:" + authData.getAccessToken() + ":" + authData.getProfileID());
-                current = current.replace("#####{user_properties}", "{}");
-                current = current.replace("#####{user_type}", "mojang");
-                args.add(current);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (int index = 0; index < split.length; index++) {
+            String current = split[index];
+            current = current.replaceAll("\\$", "#####");
+            current = current.replace("#####{auth_player_name}", authData.getMCUserName());
+            current = current.replace("#####{version_name}", this.gameVersion);
+            current = current.replace("#####{game_directory}", "\"" + this.gameDir.getAbsolutePath() + "\"");
+            current = current.replace("#####{assets_root}", assetDir);
+            current = current.replace("#####{game_assets}", assetDir);
+            current = current.replace("#####{assets_index_name}", this.getAssetVersion());
+            current = current.replace("#####{auth_uuid}", authData.getProfileID());
+            current = current.replace("#####{auth_access_token}", authData.getAccessToken());
+            current = current.replace("#####{auth_session}", "token:" + authData.getAccessToken() + ":" + authData.getProfileID());
+            current = current.replace("#####{user_properties}", "{}");
+            current = current.replace("#####{user_type}", "mojang");
+            args.add(current);
         }
+
+        args.add("stand-alone");
+        args.add("true");
+        args.add("--applet");
         return args;
     }
 

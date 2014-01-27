@@ -194,6 +194,11 @@ public class GameLauncher {
         // append arguments needed by minecraft...
         cmd.addAll(GameLauncher.INSTANCE.packInfo.getMCArguments());
 
+        // override some vars...
+        String gameDir = "\"" + getPackInfo().getGameDir().getAbsolutePath() + "\"";
+        System.setProperty("user.home", gameDir);
+        System.setProperty("minecraft.applet.TargetDirectory", gameDir);
+
         // ... and finally, try to launch...
         try {
             if (!GameLauncher.INSTANCE.error) {
