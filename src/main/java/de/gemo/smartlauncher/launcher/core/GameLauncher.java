@@ -31,6 +31,9 @@ import de.gemo.smartlauncher.universal.units.VARS;
 public class GameLauncher {
 
     public static GameLauncher INSTANCE;
+    private static boolean showConsole = false;
+    private static int minRam = 512, maxRam = 1024, permGen = 128;
+
     private boolean error = false;
 
     public static PackInfo getPackInfo() {
@@ -49,8 +52,33 @@ public class GameLauncher {
         this.downloadInfo = new DownloadInfo();
         packVersion = packVersion.replaceAll(" - recommended", "").trim();
         this.packInfo = new PackInfo(packVersion, pack);
-        LogFrame.create();
+        this.loadSettings();
+
+        if (showConsole) {
+            LogFrame.create();
+        }
         this.launch();
+    }
+
+    private void loadSettings() {
+        try {
+            File file = new File(VARS.DIR.PROFILES + "/" + Launcher.authData.getMCUserName(), getPackInfo().getPackName() + ".json");
+            if (file.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                JsonObject json = JsonObject.readFrom(reader);
+                showConsole = json.get("showConsole").asBoolean();
+                minRam = json.get("minRAM").asInt();
+                maxRam = json.get("maxRAM").asInt();
+                permGen = json.get("permGen").asInt();
+                reader.close();
+            }
+        } catch (Exception e) {
+            showConsole = false;
+            permGen = 128;
+            minRam = 512;
+            maxRam = 1024;
+            e.printStackTrace();
+        }
     }
 
     public void launch() {
@@ -171,6 +199,7 @@ public class GameLauncher {
     }
 
     public static boolean startGame() {
+        // create commands...
         ArrayList<String> cmd = new ArrayList<String>();
 
         // standard...
@@ -178,8 +207,9 @@ public class GameLauncher {
         cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
 
         // some extra-info
-        cmd.add("-Xmx1G");
-        cmd.add("-XX:PermSize=128m");
+        cmd.add("-Xms" + minRam + "m");
+        cmd.add("-Xmx" + maxRam + "m");
+        cmd.add("-XX:PermSize=" + permGen + "m");
 
         // append nativesdir...
         cmd.add("-Djava.library.path=\"" + GameLauncher.INSTANCE.packInfo.getNativesDir().getAbsolutePath() + "\"");

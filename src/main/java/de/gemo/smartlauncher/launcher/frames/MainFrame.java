@@ -170,6 +170,8 @@ public class MainFrame {
             }
         });
         iconLabel.setText(pack.getPackName());
+        iconLabel.setComponentPopupMenu(new PopupMenu(iconLabel, pack));
+        iconLabel.setInheritsPopupMenu(true);
         this.packLabels.add(iconLabel);
         this.packPanel.add(iconLabel);
         this.packPanel.revalidate();
@@ -186,5 +188,9 @@ public class MainFrame {
         } else {
             this.frame.setState(Frame.ICONIFIED);
         }
+    }
+
+    public Frame getFrame() {
+        return this.frame;
     }
 }
