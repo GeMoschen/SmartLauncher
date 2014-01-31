@@ -32,6 +32,7 @@ public class GameLauncher {
 
     public static GameLauncher INSTANCE;
     private static boolean showConsole = false;
+    private static boolean closeOnStart = false;
     private static int minRam = 512, maxRam = 1024, permGen = 128;
 
     private boolean error = false;
@@ -67,6 +68,7 @@ public class GameLauncher {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 JsonObject json = JsonObject.readFrom(reader);
                 showConsole = json.get("showConsole").asBoolean();
+                closeOnStart = json.get("closeOnStart").asBoolean();
                 minRam = json.get("minRAM").asInt();
                 maxRam = json.get("maxRAM").asInt();
                 permGen = json.get("permGen").asInt();
@@ -244,6 +246,10 @@ public class GameLauncher {
                 if (process != null) {
                     Logger.fine("Minecraft started!");
                     new MinecraftProcess(process);
+                    // close?
+                    if (closeOnStart) {
+                        System.exit(0);
+                    }
                 } else {
                     // clear all...
                     GameLauncher.onError();

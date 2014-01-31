@@ -31,21 +31,20 @@ public class SettingsFrame {
     private JDialog dialog;
     private final Pack pack;
 
-    private JCheckBox cb_console;
+    private JCheckBox cb_console, cb_closeOnStart;
     private JSpinField spin_min, spin_max, spin_perm;
 
-    private boolean showConsole = false;
+    private boolean showConsole = false, closeOnStart = false;
     private int minRam = 512, maxRam = 1024, permGen = 128;
 
     public SettingsFrame(Pack pack) {
         this.pack = pack;
         this.dialog = new JDialog(MainFrame.INSTANCE.getFrame());
         this.dialog.setTitle("Settings for '" + this.pack.getPackName() + "'...");
-        this.dialog.setSize(400, 280);
+        this.dialog.setSize(400, 300);
         this.dialog.setLayout(null);
         this.dialog.setLocationRelativeTo(null);
         this.dialog.setResizable(false);
-        this.dialog.setAlwaysOnTop(true);
         this.dialog.setVisible(true);
 
         // listener
@@ -75,23 +74,30 @@ public class SettingsFrame {
     private void createGUI() {
         int width = this.dialog.getWidth() - this.dialog.getInsets().right - this.dialog.getInsets().left;
 
-        // console
-        JPanel consolePanel = new JPanel();
-        consolePanel.setSize(width - 20, 70);
-        consolePanel.setLocation(10, 10);
-        consolePanel.setLayout(null);
-        consolePanel.setBorder(BorderFactory.createTitledBorder("Console"));
+        // launcher
+        JPanel launcherPanel = new JPanel();
+        launcherPanel.setSize(width - 20, 90);
+        launcherPanel.setLocation(10, 10);
+        launcherPanel.setLayout(null);
+        launcherPanel.setBorder(BorderFactory.createTitledBorder("SmartLauncher"));
+        // closeOnStart
+        this.cb_closeOnStart = new JCheckBox("close after gamelaunch");
+        this.cb_closeOnStart.setSelected(this.closeOnStart);
+        this.cb_closeOnStart.setSize(launcherPanel.getWidth() - 40, 20);
+        this.cb_closeOnStart.setLocation(20, 30);
+        launcherPanel.add(this.cb_closeOnStart);
+        // devconsole
         this.cb_console = new JCheckBox("show");
         this.cb_console.setSelected(this.showConsole);
-        this.cb_console.setSize(consolePanel.getWidth() - 40, 20);
-        this.cb_console.setLocation(20, 30);
-        consolePanel.add(this.cb_console);
-        this.dialog.add(consolePanel);
+        this.cb_console.setSize(launcherPanel.getWidth() - 40, 20);
+        this.cb_console.setLocation(20, this.cb_closeOnStart.getLocation().y + this.cb_closeOnStart.getHeight() + 5);
+        launcherPanel.add(this.cb_console);
+        this.dialog.add(launcherPanel);
 
         // java
         JPanel javaPanel = new JPanel();
         javaPanel.setSize(width - 20, 120);
-        javaPanel.setLocation(10, consolePanel.getLocation().y + consolePanel.getHeight() + 10);
+        javaPanel.setLocation(10, launcherPanel.getLocation().y + launcherPanel.getHeight() + 10);
         javaPanel.setLayout(null);
         javaPanel.setBorder(BorderFactory.createTitledBorder("Java"));
         this.dialog.add(javaPanel);
@@ -181,7 +187,7 @@ public class SettingsFrame {
     private void onOKClick() {
         try {
             // safety checks...
-            if (this.spin_max.getForeground().equals(Color.RED) || this.spin_min.getForeground().equals(Color.RED) || this.spin_max.value < this.spin_min.value) {
+            if (this.spin_max.getForeground().equals(Color.RED) || this.spin_min.getForeground().equals(Color.RED) || this.spin_perm.getForeground().equals(Color.RED) || this.spin_max.value < this.spin_min.value) {
                 JOptionPane.showMessageDialog(null, "Settings are invalid!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -189,6 +195,7 @@ public class SettingsFrame {
             // create json
             JsonObject json = new JsonObject();
             json.add("showConsole", this.cb_console.isSelected());
+            json.add("closeOnStart", this.cb_closeOnStart.isSelected());
             json.add("minRAM", this.spin_min.value);
             json.add("maxRAM", this.spin_max.value);
             json.add("permGen", this.spin_perm.value);
@@ -225,6 +232,7 @@ public class SettingsFrame {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 JsonObject json = JsonObject.readFrom(reader);
                 showConsole = json.get("showConsole").asBoolean();
+                closeOnStart = json.get("closeOnStart").asBoolean();
                 minRam = json.get("minRAM").asInt();
                 maxRam = json.get("maxRAM").asInt();
                 permGen = json.get("permGen").asInt();
