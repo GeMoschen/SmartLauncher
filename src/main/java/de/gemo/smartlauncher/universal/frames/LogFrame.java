@@ -1,6 +1,7 @@
 package de.gemo.smartlauncher.universal.frames;
 
 import java.awt.Dimension;
+import java.awt.Window.Type;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
@@ -37,6 +38,7 @@ public class LogFrame {
         this.frame.setBounds(0, 0, width, height);
         this.frame.setLocation(0, 0);
         this.frame.setTitle("Console");
+        this.frame.setType(Type.UTILITY);
 
         this.frame.addComponentListener(new ComponentListener() {
             // @formatter:off

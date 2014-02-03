@@ -1,10 +1,8 @@
 package de.gemo.smartlauncher.launcher.frames;
 
-import java.awt.Color;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,13 +10,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -26,179 +30,182 @@ import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.Pack;
 import de.gemo.smartlauncher.universal.units.VARS;
 
-public class SettingsFrame {
+public class SettingsFrame extends JDialog {
 
-    private JDialog dialog;
+    private static final long serialVersionUID = 6125415388456153339L;
+
+    private final JPanel contentPanel = new JPanel();
+
     private final Pack pack;
+    private int minRAM = 512, maxRAM = 1024, permgen = 128;
+    boolean showConsole = false, closeOnStart = false;
 
-    private JCheckBox cb_console, cb_closeOnStart;
-    private JSpinField spin_min, spin_max, spin_perm;
-
-    private boolean showConsole = false, closeOnStart = false;
-    private int minRam = 512, maxRam = 1024, permGen = 128;
-
+    /**
+     * Create the dialog.
+     */
     public SettingsFrame(Pack pack) {
-        this.pack = pack;
-        this.dialog = new JDialog(MainFrame.INSTANCE.getFrame());
-        this.dialog.setTitle("Settings for '" + this.pack.getPackName() + "'...");
-        this.dialog.setSize(400, 300);
-        this.dialog.setLayout(null);
-        this.dialog.setLocationRelativeTo(null);
-        this.dialog.setResizable(false);
-        this.dialog.setVisible(true);
-
-        // listener
-        this.dialog.addWindowListener(new WindowListener() {
-            //@formatter:off
-            @Override public void windowOpened(WindowEvent e)      {}            
-            @Override public void windowIconified(WindowEvent e)   {}            
-            @Override public void windowDeiconified(WindowEvent e) {}            
-            @Override public void windowDeactivated(WindowEvent e) {}
-            @Override public void windowClosed(WindowEvent e)      {}
-            @Override public void windowActivated(WindowEvent e)   {}
-            //@formatter:on
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                MainFrame.INSTANCE.showFrame(true);
-            }
-        });
-
         // load settings
+        this.pack = pack;
         this.loadSettings();
 
-        // create GUI
-        this.createGUI();
-    }
+        // build gui
+        setTitle("Settings for '" + this.pack.getPackName() + "'...");
+        setType(Type.UTILITY);
+        setResizable(false);
+        setBounds(100, 100, 368, 272);
+        getContentPane().setLayout(new BorderLayout());
+        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        getContentPane().add(contentPanel, BorderLayout.CENTER);
+        contentPanel.setLayout(null);
+        {
+            JPanel panel_smartLauncher = new JPanel();
+            panel_smartLauncher.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SmartLauncher", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_smartLauncher.setBounds(10, 11, 342, 71);
+            contentPanel.add(panel_smartLauncher);
+            panel_smartLauncher.setLayout(null);
 
-    private void createGUI() {
-        int width = this.dialog.getWidth() - this.dialog.getInsets().right - this.dialog.getInsets().left;
+            final JCheckBox cb_closeOnStart = new JCheckBox("close after gamelaunch");
+            cb_closeOnStart.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    closeOnStart = cb_closeOnStart.isSelected();
+                    System.out.println("Close: " + closeOnStart);
+                }
+            });
+            cb_closeOnStart.setSelected(this.closeOnStart);
+            cb_closeOnStart.setBounds(6, 18, 330, 23);
+            panel_smartLauncher.add(cb_closeOnStart);
 
-        // launcher
-        JPanel launcherPanel = new JPanel();
-        launcherPanel.setSize(width - 20, 90);
-        launcherPanel.setLocation(10, 10);
-        launcherPanel.setLayout(null);
-        launcherPanel.setBorder(BorderFactory.createTitledBorder("SmartLauncher"));
-        // closeOnStart
-        this.cb_closeOnStart = new JCheckBox("close after gamelaunch");
-        this.cb_closeOnStart.setSelected(this.closeOnStart);
-        this.cb_closeOnStart.setSize(launcherPanel.getWidth() - 40, 20);
-        this.cb_closeOnStart.setLocation(20, 30);
-        launcherPanel.add(this.cb_closeOnStart);
-        // devconsole
-        this.cb_console = new JCheckBox("show");
-        this.cb_console.setSelected(this.showConsole);
-        this.cb_console.setSize(launcherPanel.getWidth() - 40, 20);
-        this.cb_console.setLocation(20, this.cb_closeOnStart.getLocation().y + this.cb_closeOnStart.getHeight() + 5);
-        launcherPanel.add(this.cb_console);
-        this.dialog.add(launcherPanel);
+            final JCheckBox cb_showConsole = new JCheckBox("show console");
+            cb_showConsole.setSelected(this.showConsole);
+            cb_showConsole.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    showConsole = cb_showConsole.isSelected();
+                    System.out.println("Show: " + showConsole);
+                }
+            });
+            cb_showConsole.setBounds(6, 44, 330, 23);
+            panel_smartLauncher.add(cb_showConsole);
+        }
 
-        // java
-        JPanel javaPanel = new JPanel();
-        javaPanel.setSize(width - 20, 120);
-        javaPanel.setLocation(10, launcherPanel.getLocation().y + launcherPanel.getHeight() + 10);
-        javaPanel.setLayout(null);
-        javaPanel.setBorder(BorderFactory.createTitledBorder("Java"));
-        this.dialog.add(javaPanel);
+        JPanel panel_java = new JPanel();
+        panel_java.setBorder(new TitledBorder(null, "Java", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel_java.setBounds(10, 93, 342, 107);
+        contentPanel.add(panel_java);
+        panel_java.setLayout(null);
 
-        // minimum ram
-        this.spin_min = new JSpinField(512, 64 * 1024);
-        this.spin_min.setValue(this.minRam);
-        this.spin_min.setSize(80, 20);
-        this.spin_min.setLocation(20, 30);
-        javaPanel.add(this.spin_min);
+        JLabel lbl_minRAM = new JLabel("minimum RAM (in MB)");
+        lbl_minRAM.setBounds(85, 24, 247, 14);
+        panel_java.add(lbl_minRAM);
 
-        // label
-        JLabel lbl_minRam = new JLabel("minimum RAM");
-        lbl_minRam.setSize(150, 20);
-        lbl_minRam.setLocation(this.spin_min.getLocation().x + this.spin_min.getWidth() + 5, this.spin_min.getLocation().y - 1);
-        javaPanel.add(lbl_minRam);
+        final JSpinner spin_minRAM = new JSpinner();
+        final JSpinner spin_maxRAM = new JSpinner();
 
-        // maximum ram
-        this.spin_max = new JSpinField(1024, 64 * 1024);
-        this.spin_max.setValue(this.maxRam);
-        this.spin_max.setSize(80, 20);
-        this.spin_max.setLocation(20, this.spin_min.getLocation().y + this.spin_min.getHeight() + 5);
-        javaPanel.add(this.spin_max);
+        spin_minRAM.setModel(new SpinnerNumberModel(minRAM, 512, maxRAM, 128));
+        spin_minRAM.setBounds(10, 21, 65, 20);
+        panel_java.add(spin_minRAM);
 
-        // label
-        JLabel lbl_maxRam = new JLabel("maximum RAM");
-        lbl_maxRam.setSize(150, 20);
-        lbl_maxRam.setLocation(this.spin_max.getLocation().x + this.spin_max.getWidth() + 5, this.spin_max.getLocation().y - 1);
-        javaPanel.add(lbl_maxRam);
+        spin_maxRAM.setModel(new SpinnerNumberModel(maxRAM, minRAM, 32768, 128));
+        spin_maxRAM.setBounds(10, 49, 65, 20);
+        panel_java.add(spin_maxRAM);
 
-        // permgen
-        this.spin_perm = new JSpinField(128, 1024, 16);
-        this.spin_perm.setValue(this.permGen);
-        this.spin_perm.setSize(80, 20);
-        this.spin_perm.setLocation(20, spin_max.getLocation().y + spin_max.getHeight() + 5);
-        javaPanel.add(this.spin_perm);
+        spin_minRAM.addChangeListener(new ChangeListener() {
+            @SuppressWarnings("unchecked")
+            public void stateChanged(ChangeEvent e) {
+                SpinnerNumberModel minModel = (SpinnerNumberModel) spin_minRAM.getModel();
+                SpinnerNumberModel maxModel = (SpinnerNumberModel) spin_maxRAM.getModel();
+                maxModel.setMinimum((Comparable<Integer>) minModel.getValue());
+                minRAM = (Integer) minModel.getValue();
+            }
+        });
 
-        // label
-        JLabel lbl_perm = new JLabel("Permgen");
-        lbl_perm.setSize(150, 20);
-        lbl_perm.setLocation(this.spin_perm.getLocation().x + this.spin_perm.getWidth() + 5, this.spin_perm.getLocation().y - 1);
-        javaPanel.add(lbl_perm);
+        spin_maxRAM.addChangeListener(new ChangeListener() {
+            @SuppressWarnings("unchecked")
+            public void stateChanged(ChangeEvent e) {
+                SpinnerNumberModel minModel = (SpinnerNumberModel) spin_minRAM.getModel();
+                SpinnerNumberModel maxModel = (SpinnerNumberModel) spin_maxRAM.getModel();
+                minModel.setMaximum((Comparable<Integer>) maxModel.getValue());
+                maxRAM = (Integer) maxModel.getValue();
+            }
+        });
 
-        // button ok
-        JButton btn_ok = new JButton("OK");
-        btn_ok.setSize(100, 25);
-        btn_ok.setLocation(width / 2 - btn_ok.getSize().width - 10, javaPanel.getLocation().y + javaPanel.getHeight() + 5);
-        btn_ok.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
+        JLabel lbl_maxRAM = new JLabel("maximum RAM (in MB)");
+        lbl_maxRAM.setBounds(85, 52, 247, 14);
+        panel_java.add(lbl_maxRAM);
+
+        final JSpinner spin_permgen = new JSpinner();
+        spin_permgen.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                SpinnerNumberModel permModel = (SpinnerNumberModel) spin_permgen.getModel();
+                permgen = (Integer) permModel.getValue();
+            }
+        });
+        JLabel lbl_permgen = new JLabel("PermGen (in MB)");
+        lbl_permgen.setBounds(85, 80, 247, 14);
+        panel_java.add(lbl_permgen);
+
+        spin_permgen.setModel(new SpinnerNumberModel(128, 128, 1024, 16));
+        spin_permgen.setBounds(10, 77, 65, 20);
+
+        panel_java.add(spin_permgen);
+        {
+            JButton btn_ok = new JButton("OK");
+            btn_ok.setBounds(212, 211, 65, 23);
+            contentPanel.add(btn_ok);
+            btn_ok.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
                     onOKClick();
                 }
-            }
-
-            //@formatter:off
-            @Override public void mousePressed(MouseEvent e) {}            
-            @Override public void mouseExited(MouseEvent e)  {}            
-            @Override public void mouseEntered(MouseEvent e) {}            
-            @Override public void mouseClicked(MouseEvent e) {}
-            //@formatter:on
-        });
-        this.dialog.add(btn_ok);
-
-        // button cancel
-        JButton btn_cancel = new JButton("Cancel");
-        btn_cancel.setSize(100, 25);
-        btn_cancel.setLocation(width / 2 + 10, javaPanel.getLocation().y + javaPanel.getHeight() + 5);
-        btn_cancel.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
+            });
+            btn_ok.setActionCommand("OK");
+            getRootPane().setDefaultButton(btn_ok);
+        }
+        {
+            JButton btn_cancel = new JButton("Cancel");
+            btn_cancel.setBounds(287, 211, 65, 23);
+            contentPanel.add(btn_cancel);
+            btn_cancel.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
                     onCancelClick();
                 }
-            }
+            });
+            btn_cancel.setActionCommand("Cancel");
+        }
 
-            //@formatter:off
-            @Override public void mousePressed(MouseEvent e) {}            
-            @Override public void mouseExited(MouseEvent e)  {}            
-            @Override public void mouseEntered(MouseEvent e) {}            
-            @Override public void mouseClicked(MouseEvent e) {}
-            //@formatter:on
-        });
-        this.dialog.add(btn_cancel);
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
+    }
+
+    private void loadSettings() {
+        try {
+            File file = new File(VARS.DIR.PROFILES + "/" + Launcher.authData.getMCUserName(), this.pack.getPackName() + ".json");
+            if (file.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                JsonObject json = JsonObject.readFrom(reader);
+                showConsole = json.get("showConsole").asBoolean();
+                closeOnStart = json.get("closeOnStart").asBoolean();
+                minRAM = json.get("minRAM").asInt();
+                maxRAM = json.get("maxRAM").asInt();
+                permgen = json.get("permGen").asInt();
+                reader.close();
+            }
+        } catch (Exception e) {
+            showConsole = false;
+            permgen = 128;
+            minRAM = 512;
+            maxRAM = 1024;
+            e.printStackTrace();
+        }
     }
 
     private void onOKClick() {
         try {
-            // safety checks...
-            if (this.spin_max.getForeground().equals(Color.RED) || this.spin_min.getForeground().equals(Color.RED) || this.spin_perm.getForeground().equals(Color.RED) || this.spin_max.value < this.spin_min.value) {
-                JOptionPane.showMessageDialog(null, "Settings are invalid!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             // create json
             JsonObject json = new JsonObject();
-            json.add("showConsole", this.cb_console.isSelected());
-            json.add("closeOnStart", this.cb_closeOnStart.isSelected());
-            json.add("minRAM", this.spin_min.value);
-            json.add("maxRAM", this.spin_max.value);
-            json.add("permGen", this.spin_perm.value);
+            json.add("showConsole", this.showConsole);
+            json.add("closeOnStart", this.closeOnStart);
+            json.add("minRAM", this.minRAM);
+            json.add("maxRAM", this.maxRAM);
+            json.add("permGen", this.permgen);
 
             // delete old file
             File file = new File(VARS.DIR.PROFILES + "/" + Launcher.authData.getMCUserName(), this.pack.getPackName() + ".json");
@@ -216,34 +223,12 @@ public class SettingsFrame {
             e.printStackTrace();
         }
         // close dialog
-        this.dialog.dispose();
+        this.dispose();
         MainFrame.INSTANCE.showFrame(true);
     }
 
     private void onCancelClick() {
-        this.dialog.dispose();
+        this.dispose();
         MainFrame.INSTANCE.showFrame(true);
-    }
-
-    private void loadSettings() {
-        try {
-            File file = new File(VARS.DIR.PROFILES + "/" + Launcher.authData.getMCUserName(), this.pack.getPackName() + ".json");
-            if (file.exists()) {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                JsonObject json = JsonObject.readFrom(reader);
-                showConsole = json.get("showConsole").asBoolean();
-                closeOnStart = json.get("closeOnStart").asBoolean();
-                minRam = json.get("minRAM").asInt();
-                maxRam = json.get("maxRAM").asInt();
-                permGen = json.get("permGen").asInt();
-                reader.close();
-            }
-        } catch (Exception e) {
-            showConsole = false;
-            permGen = 128;
-            minRam = 512;
-            maxRam = 1024;
-            e.printStackTrace();
-        }
     }
 }

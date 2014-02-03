@@ -94,7 +94,7 @@ public class MCJsonDownloadListener extends HTTPListener {
             downloadInfo.setLibraryCount(Library.getLibraryDownloadList().size());
             if (downloadInfo.getLibraryCount() > 0) {
                 for (Library library : Library.getLibraryDownloadList()) {
-                    ThreadHolder.appendWorker(new Worker(new DownloadAction(library.getURL() + library.getFullPath(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
+                    ThreadHolder.appendWorker(new Worker(new DownloadAction(library.getFileUrl(), library.getDir(), library.getFileName()), new MCDownloadLibraryListener(library)));
                 }
             } else {
                 Logger.fine("Libraries are fine...");

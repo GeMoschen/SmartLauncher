@@ -13,11 +13,12 @@ public class Library {
     public static int libCount = 0;
     private static ArrayList<Library> libraryDownloadList = new ArrayList<Library>(), libraryList = new ArrayList<Library>();
 
-    private String path, name, version, nativesWin, fullPath;
+    private String path, name, version, nativesWin;
     private boolean allow = true;
     private boolean extract = false;
     private ArrayList<String> extractExcludes = new ArrayList<String>();
 
+    private String downloadURL = null;
     private String URL = VARS.URL.FILES.LIBRARIES;
     private String nameAppend = "";
 
@@ -28,10 +29,17 @@ public class Library {
             this.checkExtract(object);
             this.checkRules(object);
             this.checkNameAppend(object);
-            // TODO: handle nameAppendix...
             this.checkURL(object);
+            this.checkDownloadURL(object);
         } catch (Exception e) {
             throw new Exception("Library is invalid!\n" + e.getMessage());
+        }
+    }
+
+    private void checkDownloadURL(JsonObject object) {
+        JsonValue jsonValue = object.get("downloadurl");
+        if (jsonValue != null) {
+            this.downloadURL = jsonValue.asString();
         }
     }
 
@@ -39,7 +47,6 @@ public class Library {
         JsonValue jsonValue = object.get("nameappend");
         if (jsonValue != null) {
             this.nameAppend = jsonValue.asString();
-            this.fullPath = this.path + "/" + this.name + "/" + this.version + "/" + this.getFileName();
         }
     }
 
@@ -131,11 +138,6 @@ public class Library {
         this.name = split[1];
         this.version = split[2];
         this.nativesWin = "";
-        this.fullPath = this.path + "/" + this.name + "/" + this.version + "/" + this.getFileName();
-    }
-
-    public String getFullPath() {
-        return this.fullPath;
     }
 
     public String getPath() {
@@ -160,7 +162,6 @@ public class Library {
     public void setNative(String nativesWin) {
         nativesWin = nativesWin.replace("${arch}", System.getProperty("sun.arch.data.model"));
         this.nativesWin = nativesWin;
-        this.fullPath = this.path + "/" + this.name + "/" + this.version + "/" + this.getFileName();
     }
 
     public static boolean incrementCount() {
@@ -239,7 +240,18 @@ public class Library {
         return true;
     }
 
-    public String getURL() {
-        return URL;
+    public String getFileUrl() {
+        // if there is an downloadURL, return it...
+        if (this.downloadURL != null) {
+            return this.downloadURL;
+        }
+
+        // otherwise: construct the url and return it...
+        String fileName = this.name + "-" + this.version + this.nameAppend + ".jar";
+        if (this.nativesWin.length() > 0) {
+            fileName = this.name + "-" + this.version + this.nameAppend + "-" + this.nativesWin + ".jar";
+        }
+
+        return VARS.DIR.LIBRARIES + "/" + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
     }
 }
