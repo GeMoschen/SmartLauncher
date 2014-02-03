@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.launcher.core.minecraft.MinecraftProcess;
 import de.gemo.smartlauncher.launcher.frames.MainFrame;
@@ -31,9 +32,8 @@ import de.gemo.smartlauncher.universal.units.VARS;
 public class GameLauncher {
 
     public static GameLauncher INSTANCE;
-    private static boolean showConsole = false;
-    private static boolean closeOnStart = false;
-    private static int minRam = 512, maxRam = 1024, permGen = 128;
+    private static boolean showConsole = false, keepConsoleOpen = false, closeOnStart = false;
+    private static int minRAM = 512, maxRAM = 1024, permGen = 128;
 
     private boolean error = false;
 
@@ -43,6 +43,10 @@ public class GameLauncher {
 
     public static DownloadInfo getDownloadInfo() {
         return INSTANCE.downloadInfo;
+    }
+
+    public static boolean isKeepConsoleOpen() {
+        return keepConsoleOpen;
     }
 
     private final PackInfo packInfo;
@@ -67,20 +71,39 @@ public class GameLauncher {
             if (file.exists()) {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 JsonObject json = JsonObject.readFrom(reader);
-                showConsole = json.get("showConsole").asBoolean();
-                closeOnStart = json.get("closeOnStart").asBoolean();
-                minRam = json.get("minRAM").asInt();
-                maxRam = json.get("maxRAM").asInt();
-                permGen = json.get("permGen").asInt();
+                showConsole = getBooleanFromJson(json, "showConsole", false);
+                keepConsoleOpen = getBooleanFromJson(json, "keepConsoleOpen", false);
+                closeOnStart = getBooleanFromJson(json, "closeOnStart", false);
+                minRAM = getIntFromJson(json, "minRAM", 512);
+                maxRAM = getIntFromJson(json, "maxRAM", 1024);
+                permGen = getIntFromJson(json, "permGen", 128);
                 reader.close();
             }
         } catch (Exception e) {
             showConsole = false;
+            keepConsoleOpen = false;
+            closeOnStart = false;
             permGen = 128;
-            minRam = 512;
-            maxRam = 1024;
+            minRAM = 512;
+            maxRAM = 1024;
             e.printStackTrace();
         }
+    }
+
+    private static boolean getBooleanFromJson(JsonObject object, String name, boolean defaultValue) {
+        JsonValue value = object.get(name);
+        if (value != null) {
+            return value.asBoolean();
+        }
+        return defaultValue;
+    }
+
+    private static int getIntFromJson(JsonObject object, String name, int defaultValue) {
+        JsonValue value = object.get(name);
+        if (value != null) {
+            return value.asInt();
+        }
+        return defaultValue;
     }
 
     public void launch() {
@@ -209,8 +232,8 @@ public class GameLauncher {
         cmd.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
 
         // some extra-info
-        cmd.add("-Xms" + minRam + "m");
-        cmd.add("-Xmx" + maxRam + "m");
+        cmd.add("-Xms" + minRAM + "m");
+        cmd.add("-Xmx" + maxRAM + "m");
         cmd.add("-XX:PermSize=" + permGen + "m");
 
         // append nativesdir...

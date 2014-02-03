@@ -17,6 +17,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.MouseInputListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.core.Launcher;
@@ -170,7 +172,26 @@ public class MainFrame {
             }
         });
         iconLabel.setText(pack.getPackName());
-        iconLabel.setComponentPopupMenu(new PopupMenu(iconLabel, pack));
+        PopupMenu menu = new PopupMenu(iconLabel, pack);
+        menu.addPopupMenuListener(new PopupMenuListener() {
+
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                selectedLabel.setOpaque(true);
+                selectedLabel.setBackground(Color.ORANGE);
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                selectedLabel.setOpaque(true);
+                selectedLabel.setBackground(Color.ORANGE);
+            }
+        });
+        iconLabel.setComponentPopupMenu(menu);
         iconLabel.setInheritsPopupMenu(true);
         this.packLabels.add(iconLabel);
         this.packPanel.add(iconLabel);
@@ -185,6 +206,7 @@ public class MainFrame {
         this.versionBox.setEnabled(show);
         if (show) {
             this.frame.setState(Frame.NORMAL);
+            this.frame.toFront();
         } else {
             this.frame.setState(Frame.ICONIFIED);
         }

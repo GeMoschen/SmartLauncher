@@ -21,10 +21,7 @@ public class LogFrame {
     private JScrollPane scrollPane;
 
     public static void create() {
-        if (INSTANCE != null) {
-            INSTANCE.frame.dispose();
-            INSTANCE = null;
-        }
+        LogFrame.close();
         new LogFrame();
     }
 
@@ -93,8 +90,11 @@ public class LogFrame {
         }
     }
 
-    public void close() {
-        INSTANCE = null;
+    public static void close() {
+        if (INSTANCE != null) {
+            INSTANCE.frame.dispose();
+            INSTANCE = null;
+        }
     }
 
 }

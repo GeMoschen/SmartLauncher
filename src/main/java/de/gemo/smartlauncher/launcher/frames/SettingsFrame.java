@@ -3,6 +3,8 @@ package de.gemo.smartlauncher.launcher.frames;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 import de.gemo.smartlauncher.launcher.core.Launcher;
 import de.gemo.smartlauncher.launcher.units.Pack;
@@ -38,12 +41,18 @@ public class SettingsFrame extends JDialog {
 
     private final Pack pack;
     private int minRAM = 512, maxRAM = 1024, permgen = 128;
-    boolean showConsole = false, closeOnStart = false;
+    boolean showConsole = false, closeOnStart = false, keepConsoleOpen = false;
 
     /**
      * Create the dialog.
      */
     public SettingsFrame(Pack pack) {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                MainFrame.INSTANCE.showFrame(true);
+            }
+        });
         // load settings
         this.pack = pack;
         this.loadSettings();
@@ -52,7 +61,7 @@ public class SettingsFrame extends JDialog {
         setTitle("Settings for '" + this.pack.getPackName() + "'...");
         setType(Type.UTILITY);
         setResizable(false);
-        setBounds(100, 100, 368, 272);
+        setBounds(100, 100, 368, 301);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -60,36 +69,76 @@ public class SettingsFrame extends JDialog {
         {
             JPanel panel_smartLauncher = new JPanel();
             panel_smartLauncher.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SmartLauncher", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_smartLauncher.setBounds(10, 11, 342, 71);
+            panel_smartLauncher.setBounds(10, 11, 342, 100);
             contentPanel.add(panel_smartLauncher);
             panel_smartLauncher.setLayout(null);
 
             final JCheckBox cb_closeOnStart = new JCheckBox("close after gamelaunch");
+            final JCheckBox cb_showConsole = new JCheckBox("show console");
+            final JCheckBox cb_keepConsoleOpen = new JCheckBox("keep console open");
+
             cb_closeOnStart.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     closeOnStart = cb_closeOnStart.isSelected();
-                    System.out.println("Close: " + closeOnStart);
+                    if (closeOnStart) {
+                        cb_showConsole.setEnabled(false);
+                        cb_showConsole.setSelected(false);
+                        showConsole = false;
+                        cb_keepConsoleOpen.setEnabled(false);
+                        cb_keepConsoleOpen.setSelected(false);
+                        keepConsoleOpen = false;
+                    } else {
+                        cb_showConsole.setEnabled(true);
+                    }
                 }
             });
             cb_closeOnStart.setSelected(this.closeOnStart);
             cb_closeOnStart.setBounds(6, 18, 330, 23);
             panel_smartLauncher.add(cb_closeOnStart);
 
-            final JCheckBox cb_showConsole = new JCheckBox("show console");
             cb_showConsole.setSelected(this.showConsole);
             cb_showConsole.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     showConsole = cb_showConsole.isSelected();
-                    System.out.println("Show: " + showConsole);
+                    if (!showConsole) {
+                        cb_keepConsoleOpen.setEnabled(false);
+                        cb_keepConsoleOpen.setSelected(false);
+                        keepConsoleOpen = false;
+                    } else {
+                        cb_keepConsoleOpen.setEnabled(true);
+                    }
                 }
             });
             cb_showConsole.setBounds(6, 44, 330, 23);
             panel_smartLauncher.add(cb_showConsole);
+
+            cb_keepConsoleOpen.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    keepConsoleOpen = cb_keepConsoleOpen.isSelected();
+                }
+            });
+            cb_keepConsoleOpen.setSelected(this.keepConsoleOpen);
+            cb_keepConsoleOpen.setBounds(6, 70, 330, 23);
+            panel_smartLauncher.add(cb_keepConsoleOpen);
+
+            if (closeOnStart) {
+                cb_showConsole.setEnabled(false);
+                cb_showConsole.setSelected(false);
+                showConsole = false;
+                cb_keepConsoleOpen.setEnabled(false);
+                cb_keepConsoleOpen.setSelected(false);
+                keepConsoleOpen = false;
+            }
+            if (!showConsole) {
+                cb_keepConsoleOpen.setEnabled(false);
+                cb_keepConsoleOpen.setSelected(false);
+                keepConsoleOpen = false;
+            }
         }
 
         JPanel panel_java = new JPanel();
         panel_java.setBorder(new TitledBorder(null, "Java", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        panel_java.setBounds(10, 93, 342, 107);
+        panel_java.setBounds(10, 122, 342, 107);
         contentPanel.add(panel_java);
         panel_java.setLayout(null);
 
@@ -149,7 +198,7 @@ public class SettingsFrame extends JDialog {
         panel_java.add(spin_permgen);
         {
             JButton btn_ok = new JButton("OK");
-            btn_ok.setBounds(212, 211, 65, 23);
+            btn_ok.setBounds(212, 240, 65, 23);
             contentPanel.add(btn_ok);
             btn_ok.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -161,7 +210,7 @@ public class SettingsFrame extends JDialog {
         }
         {
             JButton btn_cancel = new JButton("Cancel");
-            btn_cancel.setBounds(287, 211, 65, 23);
+            btn_cancel.setBounds(287, 240, 65, 23);
             contentPanel.add(btn_cancel);
             btn_cancel.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -181,15 +230,18 @@ public class SettingsFrame extends JDialog {
             if (file.exists()) {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 JsonObject json = JsonObject.readFrom(reader);
-                showConsole = json.get("showConsole").asBoolean();
-                closeOnStart = json.get("closeOnStart").asBoolean();
-                minRAM = json.get("minRAM").asInt();
-                maxRAM = json.get("maxRAM").asInt();
-                permgen = json.get("permGen").asInt();
+                this.showConsole = this.getBooleanFromJson(json, "showConsole", false);
+                this.keepConsoleOpen = this.getBooleanFromJson(json, "keepConsoleOpen", false);
+                this.closeOnStart = this.getBooleanFromJson(json, "closeOnStart", false);
+                this.minRAM = this.getIntFromJson(json, "minRAM", 512);
+                this.maxRAM = this.getIntFromJson(json, "maxRAM", 1024);
+                this.permgen = this.getIntFromJson(json, "permGen", 128);
                 reader.close();
             }
         } catch (Exception e) {
             showConsole = false;
+            keepConsoleOpen = false;
+            closeOnStart = false;
             permgen = 128;
             minRAM = 512;
             maxRAM = 1024;
@@ -197,11 +249,28 @@ public class SettingsFrame extends JDialog {
         }
     }
 
+    private boolean getBooleanFromJson(JsonObject object, String name, boolean defaultValue) {
+        JsonValue value = object.get(name);
+        if (value != null) {
+            return value.asBoolean();
+        }
+        return defaultValue;
+    }
+
+    private int getIntFromJson(JsonObject object, String name, int defaultValue) {
+        JsonValue value = object.get(name);
+        if (value != null) {
+            return value.asInt();
+        }
+        return defaultValue;
+    }
+
     private void onOKClick() {
         try {
             // create json
             JsonObject json = new JsonObject();
             json.add("showConsole", this.showConsole);
+            json.add("keepConsoleOpen", this.keepConsoleOpen);
             json.add("closeOnStart", this.closeOnStart);
             json.add("minRAM", this.minRAM);
             json.add("maxRAM", this.maxRAM);
@@ -212,7 +281,6 @@ public class SettingsFrame extends JDialog {
             if (file.exists()) {
                 file.delete();
             }
-
             // save it
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             json.writeTo(writer);
