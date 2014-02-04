@@ -12,7 +12,7 @@ public class MinecraftListener {
         Logger.fine("Minecraft closed! ( Exitvalue: " + process.getProcess().exitValue() + " ) ");
         StatusFrame.INSTANCE.showFrame(false);
         MainFrame.INSTANCE.showFrame(true);
-        if (!GameLauncher.isKeepConsoleOpen()) {
+        if ((process.getProcess().exitValue() == 0) && !GameLauncher.isKeepConsoleOpen()) {
             LogFrame.close();
         }
     }
