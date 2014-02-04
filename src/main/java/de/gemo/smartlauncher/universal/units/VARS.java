@@ -6,10 +6,10 @@ public class VARS {
 
     public static String getVersionString(int version) {
         int major = (int) (version / 1000);
-        int sub = (int) ((version - major * 1000) / 100);
-        int subSub = (int) ((version - major * 1000 - sub * 100) / 10);
-        int subSubSub = (version - major * 1000 - sub * 100 - subSub * 10);
-        return major + "." + sub + "." + subSub + "." + subSubSub;
+        int minor = (int) ((version - major * 1000) / 100);
+        int revision = (int) ((version - major * 1000 - minor * 100) / 10);
+        int build = (version - major * 1000 - minor * 100 - revision * 10);
+        return major + "." + minor + "." + revision + "." + build;
     }
 
     public static String getString(String string, PackInfo gameInfo) {

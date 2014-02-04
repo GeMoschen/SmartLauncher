@@ -67,75 +67,85 @@ public class SettingsFrame extends JDialog {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         contentPanel.setLayout(null);
         {
-            JPanel panel_smartLauncher = new JPanel();
-            panel_smartLauncher.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SmartLauncher", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_smartLauncher.setBounds(10, 11, 342, 100);
-            contentPanel.add(panel_smartLauncher);
-            panel_smartLauncher.setLayout(null);
-
-            final JCheckBox cb_closeOnStart = new JCheckBox("close after gamelaunch");
-            final JCheckBox cb_showConsole = new JCheckBox("show console");
-            final JCheckBox cb_keepConsoleOpen = new JCheckBox("keep console open");
-
-            cb_closeOnStart.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    closeOnStart = cb_closeOnStart.isSelected();
-                    if (closeOnStart) {
-                        cb_showConsole.setEnabled(false);
-                        cb_showConsole.setSelected(false);
-                        showConsole = false;
-                        cb_keepConsoleOpen.setEnabled(false);
-                        cb_keepConsoleOpen.setSelected(false);
-                        keepConsoleOpen = false;
-                    } else {
-                        cb_showConsole.setEnabled(true);
-                    }
-                }
-            });
-            cb_closeOnStart.setSelected(this.closeOnStart);
-            cb_closeOnStart.setBounds(6, 18, 330, 23);
-            panel_smartLauncher.add(cb_closeOnStart);
-
-            cb_showConsole.setSelected(this.showConsole);
-            cb_showConsole.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    showConsole = cb_showConsole.isSelected();
-                    if (!showConsole) {
-                        cb_keepConsoleOpen.setEnabled(false);
-                        cb_keepConsoleOpen.setSelected(false);
-                        keepConsoleOpen = false;
-                    } else {
-                        cb_keepConsoleOpen.setEnabled(true);
-                    }
-                }
-            });
-            cb_showConsole.setBounds(6, 44, 330, 23);
-            panel_smartLauncher.add(cb_showConsole);
-
-            cb_keepConsoleOpen.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    keepConsoleOpen = cb_keepConsoleOpen.isSelected();
-                }
-            });
-            cb_keepConsoleOpen.setSelected(this.keepConsoleOpen);
-            cb_keepConsoleOpen.setBounds(6, 70, 330, 23);
-            panel_smartLauncher.add(cb_keepConsoleOpen);
-
-            if (closeOnStart) {
-                cb_showConsole.setEnabled(false);
-                cb_showConsole.setSelected(false);
-                showConsole = false;
-                cb_keepConsoleOpen.setEnabled(false);
-                cb_keepConsoleOpen.setSelected(false);
-                keepConsoleOpen = false;
-            }
-            if (!showConsole) {
-                cb_keepConsoleOpen.setEnabled(false);
-                cb_keepConsoleOpen.setSelected(false);
-                keepConsoleOpen = false;
-            }
+            this.addLauncherPanel();
+            this.addJavaPanel();
         }
 
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
+    }
+
+    private void addLauncherPanel() {
+        JPanel panel_smartLauncher = new JPanel();
+        panel_smartLauncher.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SmartLauncher", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel_smartLauncher.setBounds(10, 11, 342, 100);
+        contentPanel.add(panel_smartLauncher);
+        panel_smartLauncher.setLayout(null);
+
+        final JCheckBox cb_closeOnStart = new JCheckBox("close after gamelaunch");
+        final JCheckBox cb_showConsole = new JCheckBox("show console");
+        final JCheckBox cb_keepConsoleOpen = new JCheckBox("keep console open");
+
+        cb_closeOnStart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                closeOnStart = cb_closeOnStart.isSelected();
+                if (closeOnStart) {
+                    cb_showConsole.setEnabled(false);
+                    cb_showConsole.setSelected(false);
+                    showConsole = false;
+                    cb_keepConsoleOpen.setEnabled(false);
+                    cb_keepConsoleOpen.setSelected(false);
+                    keepConsoleOpen = false;
+                } else {
+                    cb_showConsole.setEnabled(true);
+                }
+            }
+        });
+        cb_closeOnStart.setSelected(this.closeOnStart);
+        cb_closeOnStart.setBounds(6, 18, 330, 23);
+        panel_smartLauncher.add(cb_closeOnStart);
+
+        cb_showConsole.setSelected(this.showConsole);
+        cb_showConsole.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showConsole = cb_showConsole.isSelected();
+                if (!showConsole) {
+                    cb_keepConsoleOpen.setEnabled(false);
+                    cb_keepConsoleOpen.setSelected(false);
+                    keepConsoleOpen = false;
+                } else {
+                    cb_keepConsoleOpen.setEnabled(true);
+                }
+            }
+        });
+        cb_showConsole.setBounds(6, 44, 330, 23);
+        panel_smartLauncher.add(cb_showConsole);
+
+        cb_keepConsoleOpen.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                keepConsoleOpen = cb_keepConsoleOpen.isSelected();
+            }
+        });
+        cb_keepConsoleOpen.setSelected(this.keepConsoleOpen);
+        cb_keepConsoleOpen.setBounds(6, 70, 330, 23);
+        panel_smartLauncher.add(cb_keepConsoleOpen);
+
+        if (closeOnStart) {
+            cb_showConsole.setEnabled(false);
+            cb_showConsole.setSelected(false);
+            showConsole = false;
+            cb_keepConsoleOpen.setEnabled(false);
+            cb_keepConsoleOpen.setSelected(false);
+            keepConsoleOpen = false;
+        }
+        if (!showConsole) {
+            cb_keepConsoleOpen.setEnabled(false);
+            cb_keepConsoleOpen.setSelected(false);
+            keepConsoleOpen = false;
+        }
+    }
+
+    private void addJavaPanel() {
         JPanel panel_java = new JPanel();
         panel_java.setBorder(new TitledBorder(null, "Java", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel_java.setBounds(10, 122, 342, 107);
@@ -192,7 +202,7 @@ public class SettingsFrame extends JDialog {
         lbl_permgen.setBounds(85, 80, 247, 14);
         panel_java.add(lbl_permgen);
 
-        spin_permgen.setModel(new SpinnerNumberModel(128, 128, 1024, 16));
+        spin_permgen.setModel(new SpinnerNumberModel(this.permgen, 128, 1024, 16));
         spin_permgen.setBounds(10, 77, 65, 20);
 
         panel_java.add(spin_permgen);
@@ -219,9 +229,6 @@ public class SettingsFrame extends JDialog {
             });
             btn_cancel.setActionCommand("Cancel");
         }
-
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
     }
 
     private void loadSettings() {
