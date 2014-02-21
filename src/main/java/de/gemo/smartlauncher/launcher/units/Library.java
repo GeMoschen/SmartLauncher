@@ -7,6 +7,7 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.universal.units.VARS;
 
 public class Library {
@@ -171,7 +172,7 @@ public class Library {
 
     public static boolean incrementCount() {
         libCount++;
-        return libraryDownloadList.size() == libCount;
+        return GameLauncher.getDownloadInfo().getLibraryCount() == libCount;
     }
 
     public static void clearLibrarys() {
