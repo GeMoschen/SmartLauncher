@@ -40,6 +40,11 @@ public class Library {
         JsonValue jsonValue = object.get("downloadurl");
         if (jsonValue != null) {
             this.downloadURL = jsonValue.asString();
+        } else {
+            jsonValue = object.get("url");
+            if (jsonValue != null) {
+                this.downloadURL = jsonValue.asString();
+            }
         }
     }
 
@@ -241,17 +246,17 @@ public class Library {
     }
 
     public String getFileUrl() {
-        // if there is an downloadURL, return it...
-        if (this.downloadURL != null) {
-            return this.downloadURL;
-        }
-
-        // otherwise: construct the url and return it...
+        // construct the filename...
         String fileName = this.name + "-" + this.version + this.nameAppend + ".jar";
         if (this.nativesWin.length() > 0) {
             fileName = this.name + "-" + this.version + this.nameAppend + "-" + this.nativesWin + ".jar";
         }
 
-        return VARS.DIR.LIBRARIES + "/" + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
+        // if there is an downloadURL, return it...
+        if (this.downloadURL != null) {
+            return this.downloadURL + "/" + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
+        }
+
+        return VARS.URL.FILES.LIBRARIES + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
     }
 }
