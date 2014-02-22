@@ -63,5 +63,6 @@ public class MCDownloadLibraryListener extends HTTPListener {
         int percentInt = (int) (percent * 100);
         percent = percentInt / 100f;
         StatusFrame.INSTANCE.setProgress((int) percent);
+        StatusFrame.INSTANCE.setText("downloading library '" + this.library.getFileName() + "'... : " + percent + "%");
     }
 }

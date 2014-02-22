@@ -82,5 +82,6 @@ public class MCJsonAssetsListener extends HTTPListener {
         int percentInt = (int) (percent * 100);
         percent = percentInt / 100f;
         StatusFrame.INSTANCE.setProgress((int) percent);
+        StatusFrame.INSTANCE.setText("downloading assets.json... : " + percent + "%");
     }
 }

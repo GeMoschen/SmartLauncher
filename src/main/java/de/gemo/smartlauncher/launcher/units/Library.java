@@ -41,11 +41,6 @@ public class Library {
         JsonValue jsonValue = object.get("downloadurl");
         if (jsonValue != null) {
             this.downloadURL = jsonValue.asString();
-        } else {
-            jsonValue = object.get("url");
-            if (jsonValue != null) {
-                this.downloadURL = jsonValue.asString();
-            }
         }
     }
 
@@ -63,6 +58,8 @@ public class Library {
             if (!this.URL.endsWith("/")) {
                 this.URL += "/";
             }
+        } else {
+            this.URL = VARS.URL.FILES.LIBRARIES;
         }
     }
 
@@ -258,6 +255,6 @@ public class Library {
             return this.downloadURL + "/" + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
         }
 
-        return VARS.URL.FILES.LIBRARIES + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
+        return this.URL + this.getPath() + "/" + this.getName() + "/" + this.getVersion() + "/" + fileName;
     }
 }

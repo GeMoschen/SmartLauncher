@@ -13,8 +13,11 @@ import de.gemo.smartlauncher.universal.units.Logger;
 
 public class GetSinglePackListener extends HTTPListener {
 
+    private String packName = "";
+
     public void onStart(HTTPAction action) {
         Logger.info("downloading packfile: '" + action.getShortDescription() + "'...");
+        this.packName = action.getShortDescription();
     }
 
     public void onFinish(HTTPAction action) {
@@ -67,6 +70,7 @@ public class GetSinglePackListener extends HTTPListener {
         int percentInt = (int) (percent * 100);
         percent = percentInt / 100f;
         StatusFrame.INSTANCE.setProgress((int) percent);
+        StatusFrame.INSTANCE.setText("downloading '" + this.packName + "': " + percent + "%");
     }
 
 }
