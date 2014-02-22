@@ -63,5 +63,6 @@ public class MCDownloadAssetListener extends HTTPListener {
         int percentInt = (int) (percent * 100);
         percent = percentInt / 100f;
         StatusFrame.INSTANCE.setProgress((int) percent);
+        StatusFrame.INSTANCE.setText("downloading '" + this.asset.getPath() + "'... : " + percent + "%");
     }
 }
