@@ -4,7 +4,6 @@ import java.net.HttpURLConnection;
 
 import de.gemo.smartlauncher.launcher.core.GameLauncher;
 import de.gemo.smartlauncher.launcher.units.Asset;
-import de.gemo.smartlauncher.launcher.units.DownloadInfo;
 import de.gemo.smartlauncher.universal.frames.StatusFrame;
 import de.gemo.smartlauncher.universal.internet.HTTPAction;
 import de.gemo.smartlauncher.universal.internet.HTTPListener;
@@ -40,11 +39,8 @@ public class MCDownloadAssetListener extends HTTPListener {
                 Logger.fine("Assets successfully downloaded...");
 
                 // launch game, if there is nothing left to download...
-                DownloadInfo downloadInfo = GameLauncher.getDownloadInfo();
-                if (!downloadInfo.isDownloadMCJar() && downloadInfo.getLibraryCount() < 1) {
-                    if (GameLauncher.prepareGame()) {
-                        GameLauncher.startGame();
-                    }
+                if (GameLauncher.prepareGame()) {
+                    GameLauncher.startGame();
                 }
             }
         } catch (Exception e) {

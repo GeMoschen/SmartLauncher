@@ -4,7 +4,7 @@ public class DownloadInfo {
     private int libraryCount = 0;
     private int assetCount = 0;
     private boolean downloadAssetJSON = false;
-    private boolean downloadMCJar = false;
+    private boolean MCJarDownloaded = false, downloadMCJar = false;
 
     public int getLibraryCount() {
         return libraryCount;
@@ -26,8 +26,13 @@ public class DownloadInfo {
         return downloadMCJar;
     }
 
+    public boolean isMCJarDownloaded() {
+        return MCJarDownloaded;
+    }
+
     public void setDownloadMCJar(boolean downloadMCJar) {
         this.downloadMCJar = downloadMCJar;
+        this.MCJarDownloaded = !downloadMCJar;
     }
 
     public boolean isDownloadAssetJSON() {
